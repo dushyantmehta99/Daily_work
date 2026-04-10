@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<services xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="http://moqui.org/xsd/moqui-conf-3.xsd">
+
+    <!-- ================= CREATE (YOUR ORIGINAL - UNCHANGED) ================= -->
+    <service verb="create" noun="Tutorial" type="inline">
+        <in-parameters>
+            <auto-parameters include="all"/>
+        </in-parameters>
+        <out-parameters>
+            <auto-parameters include="pk" required="true"/>
+        </out-parameters>
+        <actions>
+            <entity-make-value entity-name="tutorial.Tutorial" value-field="tutorial"/>
+            <entity-set value-field="tutorial" include="all"/>
+            <if condition="!tutorial.tutorialId">
+                <entity-sequenced-id-primary value-field="tutorial"/>
+            </if>
+            <entity-create value-field="tutorial"/>
+        </actions>
+    </service>
+
+    <!-- ================= READ (GET SINGLE RECORD) ================= -->
+    <service verb="get" noun="Tutorial" type="inline">
+        <in-parameters>
+            <parameter name="tutorialId" required="true"/>
+        </in-parameters>
+        <out-parameters>
+            <auto-parameters entity-name="tutorial.Tutorial" include="all"/>
+        </out-parameters>
+        <actions>
+            <entity-find-one entity-name="tutorial.Tutorial" value-field="tutorial">
+                <field-map field-name="tutorialId"/>
+            </entity-find-one>
+            <entity-set value-field="tutorial" include="all"/>
+        </actions>
+    </service>
+
+    <!-- ================= UPDATE ================= -->
+    <service verb="update" noun="Tutorial" type="inline">
+        <in-parameters>
+            <auto-parameters include="all"/>
+        </in-parameters>
+        <out-parameters>
+            <auto-parameters include="pk"/>
+        </out-parameters>
+        <actions>
+            <entity-find-one entity-name="tutorial.Tutorial" value-field="tutorial">
+                <field-map field-name="tutorialId"/>
+            </entity-find-one>
+            <entity-set value-field="tutorial" include="all"/>
+            <entity-update value-field="tutorial"/>
+        </actions>
+    </service>
+
+    <!-- ================= DELETE ================= -->
+    <service verb="delete" noun="Tutorial" type="inline">
+        <in-parameters>
+            <parameter name="tutorialId" required="true"/>
+        </in-parameters>
+        <actions>
+            <entity-find-one entity-name="tutorial.Tutorial" value-field="tutorial">
+                <field-map field-name="tutorialId"/>
+            </entity-find-one>
+            <entity-delete value-field="tutorial"/>
+        </actions>
+    </service>
+
+</services>

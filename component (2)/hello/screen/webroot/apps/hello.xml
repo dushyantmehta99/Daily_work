@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://moqui.org/xsd/xml-screen-3.xsd"
+        name="hello" require-authentication="false">
+    
+    <!-- This makes HelloWorld the default screen to show when hitting /apps/hello -->
+    <subscreens default-item="HelloWorld">
+        <subscreens-item name="HelloWorld" location="component://hello/screen/HelloWorld.xml"/>
+    </subscreens>
+    
+    <widgets>
+        <subscreens-active/>
+    </widgets>
+</screen>

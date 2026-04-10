@@ -1,0 +1,46 @@
+<services xmlns="http://moqui.org/xsd/service-definition-3.xsd">
+
+    <!-- CREATE STUDENT -->
+    <service verb="create" noun="Student">
+        <in-parameters>
+            <parameter name="name"/>
+            <parameter name="age"/>
+            <parameter name="email"/>
+        </in-parameters>
+        <out-parameters>
+            <parameter name="studentId"/>
+        </out-parameters>
+        <actions>
+            <entity-create entity-name="student.Student">
+                <field-map field-name="studentId" from="ec.entity.getNextSeqId('student.Student')"/>
+                <field-map field-name="name" from="name"/>
+                <field-map field-name="age" from="age"/>
+                <field-map field-name="email" from="email"/>
+            </entity-create>
+        </actions>
+    </service>
+
+    <!-- DELETE STUDENT -->
+    <service verb="delete" noun="Student">
+        <in-parameters>
+            <parameter name="studentId"/>
+        </in-parameters>
+        <actions>
+            <entity-delete entity-name="student.Student" value-map="context"/>
+        </actions>
+    </service>
+
+    <!-- UPDATE STUDENT (BONUS - for later use) -->
+    <service verb="update" noun="Student">
+        <in-parameters>
+            <parameter name="studentId"/>
+            <parameter name="name"/>
+            <parameter name="age"/>
+            <parameter name="email"/>
+        </in-parameters>
+        <actions>
+            <entity-update entity-name="student.Student" value-map="context"/>
+        </actions>
+    </service>
+
+</services>

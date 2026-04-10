@@ -1,0 +1,10 @@
+<screen xmlns="http://moqui.org/xsd/screen-definition-2.1.xsd"
+        name="Hello" require-authentication="false">
+
+    <section>
+        <widgets>
+            <include-screen location="HelloWorld.xml"/>
+        </widgets>
+    </section>
+
+</screen>

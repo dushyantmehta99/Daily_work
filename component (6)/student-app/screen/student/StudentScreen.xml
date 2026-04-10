@@ -1,0 +1,50 @@
+<screen xmlns="http://moqui.org/xsd/screen-definition-3.xsd"
+        require-authentication="false">
+    <section>
+        <actions>
+            <entity-find entity-name="student.Student" list="studentList"/>
+        </actions>
+
+        <widgets>
+
+            <!-- CREATE -->
+            <form name="createStudentForm" transition="createStudent">
+                <field name="name"/>
+                <field name="age"/>
+                <field name="email"/>
+                <field name="submit"><submit/></field>
+            </form>
+
+            <!-- READ -->
+            <form-list list="studentList">
+                <field name="studentId"/>
+                <field name="name"/>
+                <field name="age"/>
+                <field name="email"/>
+
+                <!-- DELETE BUTTON -->
+                <field name="delete">
+                    <link transition="deleteStudent">
+                        <parameter name="studentId" from="studentId"/>
+                        Delete
+                    </link>
+                </field>
+
+            </form-list>
+
+        </widgets>
+    </section>
+
+    <!-- CREATE -->
+    <transition name="createStudent">
+        <service-call name="create#Student"/>
+        <default-response url="."/>
+    </transition>
+
+    <!-- DELETE -->
+    <transition name="deleteStudent">
+        <service-call name="delete#Student"/>
+        <default-response url="."/>
+    </transition>
+
+</screen>

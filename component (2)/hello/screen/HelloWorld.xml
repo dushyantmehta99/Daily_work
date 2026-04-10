@@ -1,0 +1,8 @@
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://moqui.org/xsd/xml-screen-3.xsd"
+        name="HelloWorld" require-authentication="false">
+    
+    <widgets>
+        <label text="Hello World! This is my first Moqui app 🚀" type="h3"/>
+    </widgets>
+
+</screen>

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="http://moqui.org/xsd/moqui-conf-3.xsd">
+
+    <actions>
+        <entity-find entity-name="tutorial.Tutorial" list="tutorialList">
+            <search-form-inputs/>
+        </entity-find>
+    </actions>
+
+    <widgets>
+
+        <form-list name="ListTutorials" list="tutorialList" header-dialog="true" skip-form="true">
+
+            <auto-fields-entity entity-name="tutorial.Tutorial" field-type="find-display"/>
+
+            <field name="description">
+                <header-field show-order-by="true">
+                    <text-find hide-options="true"/>
+                </header-field>
+                <default-field>
+                    <display/>
+                </default-field>
+            </field>
+
+            <!-- ================= ADDED: EDIT BUTTON ================= -->
+            <field name="edit">
+                <default-field>
+                    <link text="Edit" url="EditTutorial">
+                        <parameter name="tutorialId" from="tutorialId"/>
+                    </link>
+                </default-field>
+            </field>
+
+            <!-- ================= ADDED: DELETE BUTTON ================= -->
+            <field name="delete">
+                <default-field>
+                    <link text="Delete" transition="deleteTutorial">
+                        <parameter name="tutorialId" from="tutorialId"/>
+                    </link>
+                </default-field>
+            </field>
+
+        </form-list>
+
+        <container-dialog id="CreateTutorialDialog" button-text="Create Tutorial">
+            <form-single name="CreateTutorial" transition="createTutorial">
+                <auto-fields-entity entity-name="tutorial.Tutorial" field-type="edit"/>
+                <field name="submitButton">
+                    <default-field title="Create">
+                        <submit/>
+                    </default-field>
+                </field>
+            </form-single>
+        </container-dialog>
+
+    </widgets>
+
+    <!-- EXISTING -->
+    <transition name="createTutorial">
+        <service-call name="tutorial.TutorialServices.create#Tutorial"/>
+        <default-response url="."/>
+    </transition>
+
+    <!-- ================= ADDED: DELETE TRANSITION ================= -->
+    <transition name="deleteTutorial">
+        <service-call name="tutorial.TutorialServices.delete#Tutorial"/>
+        <default-response url="."/>
+    </transition>
+
+</screen>

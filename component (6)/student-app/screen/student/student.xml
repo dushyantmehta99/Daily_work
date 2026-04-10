@@ -1,0 +1,8 @@
+<screen xmlns="http://moqui.org/xsd/screen-definition-3.xsd" require-authentication="false">
+
+    <subscreens default-item="StudentScreen">
+        <subscreens-item name="StudentScreen"
+                         location="component://student-app/screen/student/StudentScreen.xml"/>
+    </subscreens>
+
+</screen>

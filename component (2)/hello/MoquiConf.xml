@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<moqui-conf xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://moqui.org/xsd/moqui-conf-3.xsd">
+    <screen-facade>
+        <!-- This adds the Hello App to the main Apps screen -->
+        <screen location="component://webroot/screen/webroot/apps.xml">
+            <subscreens-item name="hello" menu-title="Hello App" location="component://hello/screen/Hello.xml"/>
+        </screen>
+    </screen-facade>
+</moqui-conf>
