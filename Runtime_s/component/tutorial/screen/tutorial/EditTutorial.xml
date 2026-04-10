@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="http://moqui.org/xsd/moqui-conf-3.xsd">
+
+    <actions>
+        <!-- Validate parameter exists -->
+        <if condition="!tutorialId">
+            <return type="error" message="Tutorial ID is required"/>
+        </if>
+
+        <!-- Fetch the record -->
+        <entity-find-one entity-name="tutorial.Tutorial" value-field="tutorial">
+            <field-map field-name="tutorialId" from="tutorialId"/>
+        </entity-find-one>
+
+        <!-- Validate record was found -->
+        <if condition="!tutorial">
+            <return type="error" message="Tutorial not found with ID: ${tutorialId}"/>
+        </if>
+    </actions>
+
+    <widgets>
+        <form-single name="EditTutorialForm" map="tutorial" transition="updateTutorial">
+            <!-- Make ID read-only by making it hidden -->
+            <field name="tutorialId">
+                <default-field>
+                    <hidden/>
+                </default-field>
+            </field>
+
+            <!-- Make description editable -->
+            <field name="description">
+                <default-field>
+                    <text-area cols="80" rows="3"/>
+                </default-field>
+            </field>
+
+            <field name="submit">
+                <default-field><submit button-text="Update"/></default-field>
+            </field>
+        </form-single>
+    </widgets>
+
+    <transition name="updateTutorial">
+        <service-call name="tutorial.TutorialServices.update#Tutorial"/>
+        <default-response url="../FindTutorial" message="Tutorial updated successfully"/>
+        <error-response url="../FindTutorial" message="${message}"/>
+    </transition>
+
+</screen>
