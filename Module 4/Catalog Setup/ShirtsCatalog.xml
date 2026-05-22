@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<entity-engine-xml>
+    <!-- Catalog -->
+    <ProdCatalog prodCatalogId="XML_SHIRTS_CATALOG" catalogName="XML Shirts Catalog"/>
+
+    <!-- Categories -->
+    <ProductCategory productCategoryId="XML_SHIRTS_ROOT" productCategoryTypeId="CATALOG_CATEGORY" categoryName="Browse Root (XML)"/>
+    <ProductCategory productCategoryId="XML_SHIRTS_MEN" productCategoryTypeId="CATALOG_CATEGORY" categoryName="Men Shirts (XML)"/>
+    <ProductCategory productCategoryId="XML_SHIRTS_CASUAL" productCategoryTypeId="CATALOG_CATEGORY" categoryName="Casual Shirts (XML)"/>
+    <ProductCategory productCategoryId="XML_PROMO_CAT" productCategoryTypeId="CATALOG_CATEGORY" categoryName="Promotion (XML)"/>
+
+    <!-- Category Rollups -->
+    <ProductCategoryRollup productCategoryId="XML_SHIRTS_MEN" parentProductCategoryId="XML_SHIRTS_ROOT" fromDate="2026-01-01 00:00:00.0"/>
+    <ProductCategoryRollup productCategoryId="XML_SHIRTS_CASUAL" parentProductCategoryId="XML_SHIRTS_MEN" fromDate="2026-01-01 00:00:00.0"/>
+    <ProductCategoryRollup productCategoryId="XML_PROMO_CAT" parentProductCategoryId="XML_SHIRTS_ROOT" fromDate="2026-01-01 00:00:00.0"/>
+
+    <!-- Catalog Category Link -->
+    <ProdCatalogCategory prodCatalogId="XML_SHIRTS_CATALOG" productCategoryId="XML_SHIRTS_ROOT" prodCatalogCategoryTypeId="PCCT_BROWSE_ROOT" fromDate="2026-01-01 00:00:00.0"/>
+    <ProdCatalogCategory prodCatalogId="XML_SHIRTS_CATALOG" productCategoryId="XML_PROMO_CAT" prodCatalogCategoryTypeId="PCCT_PROMOTIONS" fromDate="2026-01-01 00:00:00.0"/>
+
+    <!-- Features -->
+    <ProductFeatureCategory productFeatureCategoryId="XML_SHIRT_SIZE" description="Shirt Size (XML)"/>
+    <ProductFeatureCategory productFeatureCategoryId="XML_SHIRT_COLOR" description="Shirt Color (XML)"/>
+
+    <ProductFeature productFeatureId="XML_SIZE_M" productFeatureTypeId="SIZE" productFeatureCategoryId="XML_SHIRT_SIZE" description="Medium"/>
+    <ProductFeature productFeatureId="XML_SIZE_L" productFeatureTypeId="SIZE" productFeatureCategoryId="XML_SHIRT_SIZE" description="Large"/>
+    <ProductFeature productFeatureId="XML_COLOR_BLUE" productFeatureTypeId="COLOR" productFeatureCategoryId="XML_SHIRT_COLOR" description="Blue"/>
+
+    <!-- Virtual Product SHIRT-1 -->
+    <Product productId="SHIRT-1" productTypeId="GOOD" isVirtual="Y" isVariant="N" internalName="Casual Blue Shirt"/>
+    <ProductCategoryMember productCategoryId="XML_SHIRTS_CASUAL" productId="SHIRT-1" fromDate="2026-01-01 00:00:00.0"/>
+    <ProductCategoryMember productCategoryId="XML_PROMO_CAT" productId="SHIRT-1" fromDate="2026-01-01 00:00:00.0"/>
+
+    <!-- Apply Features to Virtual Product (SELECTABLE) -->
+    <ProductFeatureAppl productId="SHIRT-1" productFeatureId="XML_SIZE_M" productFeatureApplTypeId="SELECTABLE_FEATURE" fromDate="2026-01-01 00:00:00.0"/>
+    <ProductFeatureAppl productId="SHIRT-1" productFeatureId="XML_SIZE_L" productFeatureApplTypeId="SELECTABLE_FEATURE" fromDate="2026-01-01 00:00:00.0"/>
+    <ProductFeatureAppl productId="SHIRT-1" productFeatureId="XML_COLOR_BLUE" productFeatureApplTypeId="SELECTABLE_FEATURE" fromDate="2026-01-01 00:00:00.0"/>
+
+    <!-- Variant Product: SHIRT-1-BLUE-M -->
+    <Product productId="SHIRT-1-BLUE-M" productTypeId="GOOD" isVirtual="N" isVariant="Y" internalName="Casual Blue Shirt Medium"/>
+    <ProductAssoc productId="SHIRT-1" productIdTo="SHIRT-1-BLUE-M" productAssocTypeId="PRODUCT_VARIANT" fromDate="2026-01-01 00:00:00.0"/>
+    <ProductFeatureAppl productId="SHIRT-1-BLUE-M" productFeatureId="XML_SIZE_M" productFeatureApplTypeId="STANDARD_FEATURE" fromDate="2026-01-01 00:00:00.0"/>
+    <ProductFeatureAppl productId="SHIRT-1-BLUE-M" productFeatureId="XML_COLOR_BLUE" productFeatureApplTypeId="STANDARD_FEATURE" fromDate="2026-01-01 00:00:00.0"/>
+
+    <!-- Variant Product: SHIRT-1-BLUE-L -->
+    <Product productId="SHIRT-1-BLUE-L" productTypeId="GOOD" isVirtual="N" isVariant="Y" internalName="Casual Blue Shirt Large"/>
+    <ProductAssoc productId="SHIRT-1" productIdTo="SHIRT-1-BLUE-L" productAssocTypeId="PRODUCT_VARIANT" fromDate="2026-01-01 00:00:00.0"/>
+    <ProductFeatureAppl productId="SHIRT-1-BLUE-L" productFeatureId="XML_SIZE_L" productFeatureApplTypeId="STANDARD_FEATURE" fromDate="2026-01-01 00:00:00.0"/>
+    <ProductFeatureAppl productId="SHIRT-1-BLUE-L" productFeatureId="XML_COLOR_BLUE" productFeatureApplTypeId="STANDARD_FEATURE" fromDate="2026-01-01 00:00:00.0"/>
+
+    <!-- Promotion -->
+    <ProductPromo productPromoId="XML_SHIRTS_PROMO" promoName="XML Shirts Promotion" userEntered="Y"/>
+    <ProductPromoRule productPromoId="XML_SHIRTS_PROMO" productPromoRuleId="01" ruleName="Promo Rule 1"/>
+    <ProductPromoCond productPromoId="XML_SHIRTS_PROMO" productPromoRuleId="01" productPromoCondSeqId="01" inputParamEnumId="PPIP_PRODUCT_QUANT" operatorEnumId="PPC_EQ" condValue="1"/>
+    <ProductPromoAction productPromoId="XML_SHIRTS_PROMO" productPromoRuleId="01" productPromoActionSeqId="01" productPromoActionEnumId="PROMO_PROD_DISC" amount="10"/>
+    
+    <!-- Link Promotion to Category containing SHIRT-1 -->
+    <ProductPromoCategory productPromoId="XML_SHIRTS_PROMO" productPromoRuleId="01" productPromoActionSeqId="01" productPromoCondSeqId="_NA_" productCategoryId="XML_PROMO_CAT" andGroupId="_NA_" productPromoApplEnumId="PPPA_INCLUDE"/>
+</entity-engine-xml>
