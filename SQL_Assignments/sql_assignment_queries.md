@@ -1,0 +1,739 @@
+# SQL Queries Reference
+
+---
+
+## Query 1 — New Customers Acquired in June 2023
+
+```sql
+SELECT
+    p.party_id,
+    pp.first_name,
+    pp.last_name,
+    cm.info_String,
+    tn.contact_number
+FROM party p
+LEFT JOIN party_role pr ON p.party_id = pr.party_id
+LEFT JOIN person pp ON pp.party_id = pr.party_id
+LEFT JOIN Party_Contact_mech pcm ON pcm.party_id = pp.party_id
+LEFT JOIN contact_mech cm ON pcm.contact_mech_id = cm.contact_mech_id
+LEFT JOIN telecom_number tn ON cm.contact_mech_id = tn.contact_mech_id
+WHERE pr.role_type_id = "CUSTOMER"
+  AND p.created_stamp BETWEEN "2023-06-01" AND "2023-07-01";
+```
+
+---
+
+## Query 2 — List All Active Physical Products
+
+```sql
+SELECT
+    product_id,
+    product_type_id,
+    internal_name
+FROM product
+WHERE (SALES_DISCONTINUATION_DATE IS NULL OR SALES_DISCONTINUATION_DATE > NOW())
+  AND product_type_id NOT IN (
+      SELECT product_type_id
+      FROM product_type
+      WHERE is_physical = "N"
+  );
+```
+
+---
+
+## Query 3 — Products Missing NetSuite ID
+
+```sql
+SELECT
+    p.product_id,
+    p.Internal_name,
+    p.product_type_id,
+    gi.good_identification_type_id
+FROM product p
+LEFT JOIN good_identification gi
+    ON p.product_id = gi.product_id
+    AND gi.good_identification_type_id = 'ERP_ID'
+WHERE p.product_type_id = 'FINISHED_GOOD'
+  AND gi.id_value IS NULL;
+```
+
+---
+
+## Query 4 — Product IDs Across Systems
+
+```sql
+SELECT
+    p.product_id,
+    CASE WHEN GI.good_Identification_type_id = "ERP_ID"
+         THEN GI.good_Identification_type_id ELSE NULL END AS NS_id,
+    CASE WHEN GI.good_Identification_type_id = "HS_CODE"
+         THEN GI.good_Identification_type_id ELSE NULL END AS HS_id,
+    CASE WHEN GI.good_Identification_type_id = "SHOPIFY_PROD_ID"
+         THEN GI.good_Identification_type_id ELSE NULL END AS Shopify_id
+FROM product p
+LEFT JOIN good_Identification GI ON GI.product_id = p.product_id
+WHERE product_type_id = "FINISHED_GOOD";
+```
+
+---
+
+## Query 5 — Completed Orders in August 2023
+
+```sql
+SELECT  
+    p.PRODUCT_ID, 
+    psc.PRODUCT_STORE_ID,
+    p.INTERNAL_NAME,
+    p.PRODUCT_TYPE_ID, 
+    ohis.ORDER_HISTORY_ID,
+    OI.QUANTITY,
+    f.FACILITY_ID, 
+    OI.EXTERNAL_ID,
+    f.FACILITY_TYPE_ID,
+    OI.ORDER_ID,
+    OI.ORDER_ITEM_SEQ_ID, 
+    OI.SHIP_GROUP_SEQ_ID 
+FROM 
+    ORDER_ITEM OI 
+LEFT JOIN 
+    PRODUCT p 
+    ON p.PRODUCT_ID = OI.PRODUCT_ID 
+LEFT JOIN 
+    ORDER_ITEM_SHIP_GROUP oisg  
+    ON OI.ORDER_ID = oisg.ORDER_ID 
+    AND OI.SHIP_GROUP_SEQ_ID = oisg.SHIP_GROUP_SEQ_ID
+LEFT JOIN 
+    FACILITY f 
+    ON f.FACILITY_ID = oisg.FACILITY_ID 
+    AND oisg.FACILITY_ID <> '_NA_'
+LEFT JOIN 
+    PRODUCT_STORE_CATALOG psc 
+    ON OI.PROD_CATALOG_ID = psc.PROD_CATALOG_ID
+LEFT JOIN 
+    ORDER_HISTORY ohis 
+    ON ohis.ORDER_ID = OI.ORDER_ID 
+    AND ohis.ORDER_ITEM_SEQ_ID = OI.ORDER_ITEM_SEQ_ID 
+JOIN 
+    ORDER_STATUS os 
+    ON os.ORDER_ID = OI.ORDER_ID 
+    AND os.ORDER_ITEM_SEQ_ID = OI.ORDER_ITEM_SEQ_ID 
+WHERE 
+    os.STATUS_ID = 'ITEM_COMPLETED' 
+    AND os.STATUS_DATETIME >= '2023-08-01' 
+    AND os.STATUS_DATETIME <= '2023-09-01';
+```
+
+---
+
+## Query 6 — Newly Created Sales Orders and Payment Methods
+
+```sql
+SELECT
+    OPP.Payment_Method_Type_Id,
+    OPP.order_id,
+    OPP.MAX_Amount,
+    OH.External_iD
+FROM ORDER_PAYMENT_PREFERENCE OPP
+LEFT JOIN ORDER_HEADER OH ON OH.ORDER_ID = OPP.ORDER_ID
+ORDER BY OPP.ORDER_ID;
+```
+
+---
+
+## Query 7 — Payment Captured but Not Shipped
+
+```sql
+SELECT
+    OH.ORDER_ID,
+    OH.STATUS_ID AS ORDER_STATUS,
+    OPP.STATUS_ID AS PAYMENT_STATUS,
+    "NO_SHIPMENT_YET" AS SHIPMENT_STATUS
+FROM ORDER_PAYMENT_PREFERENCE OPP
+LEFT JOIN ORDER_HEADER OH ON OH.ORDER_ID = OPP.ORDER_ID
+LEFT JOIN SHIPMENT S ON S.PRIMARY_ORDER_ID = OPP.ORDER_ID
+WHERE OPP.STATUS_ID = "PAYMENT_SETTLED"
+  AND S.SHIPMENT_ID IS NULL;
+```
+
+---
+
+## Query 8 — Orders Completed Hourly
+
+```sql
+SELECT
+    HOUR(ENTRY_DATE) AS hour,
+    COUNT(ORDER_ID) AS total_orders
+FROM ORDER_HEADER
+WHERE STATUS_ID = 'ORDER_COMPLETED'
+  AND ENTRY_DATE BETWEEN DATE_SUB(NOW(), INTERVAL 1 MONTH) AND NOW()
+GROUP BY HOUR(ENTRY_DATE)
+ORDER BY hour;
+```
+
+---
+
+## Query 9 — BOPIS Orders Revenue (Last Year)
+
+```sql
+SELECT 
+COUNT(OA.ORDER_ID)  ORDER_COUNT ,
+SUM(IFNULL(OH.GRAND_TOTAL, 0) - IFNULL(OA.OTHER_CHARGES, 0)) AS REVENUE 
+FROM ORDER_HEADER OH
+JOIN 
+(SELECT  
+AD.ORDER_ID , 
+SUM(IFNULL(AD.AMOUNT , 0))OTHER_CHARGES 
+FROM ORDER_HEADER OH
+JOIN ORDER_ITEM_SHIP_GROUP OISG
+ON OISG.ORDER_ID = OH.ORDER_ID AND SHIPMENT_METHOD_TYPE_ID = "STOREPICKUP"
+LEFT JOIN ORDER_ADJUSTMENT AD
+ON AD.ORDER_ID = OH.ORDER_ID 
+GROUP BY ORDER_ID ) OA
+ON OA.ORDER_ID = OH.ORDER_ID
+JOIN ORDER_STATUS OS
+    ON OS.ORDER_ID = OH.ORDER_ID 
+    WHERE 
+    OS.STATUS_ID = 'ITEM_COMPLETED' 
+    AND OS.STATUS_DATETIME >= '2025-01-01' 
+    AND OS.STATUS_DATETIME <= '2026-06-01';
+```
+
+---
+
+## Query 10 — Canceled Orders (Last Month)
+
+```sql
+SELECT
+    COUNT(IFNULL(ORDER_ID, 0)) AS ORDER_ITEM_CANCEL,
+    CHANGE_REASON
+FROM ORDER_STATUS
+WHERE STATUS_ID = "ITEM_CANCELLED"
+    AND STATUS_DATETIME >= '2026-05-01' 
+    AND STATUS_DATETIME <= '2026-06-01'
+GROUP BY Change_Reason;
+```
+
+---
+
+## Query 11 — Product Threshold Value
+
+```sql
+SELECT
+    product_id,
+    SUM(IFNULL(minimum_stock, 0)) AS total_minimum_stock
+FROM product_facility
+GROUP BY product_id;
+```
+
+---
+
+## Query 12 — Shipping Addresses for October 2023 Orders
+
+```sql
+SELECT
+    OH.ORDER_ID,
+    P.PARTY_ID,
+    P.FIRST_NAME,
+    P.LAST_NAME,
+    PA.ADDRESS1,
+    PA.CITY,
+    PA.STATE_PROVINCE_GEO_ID,
+    PA.COUNTRY_GEO_ID,
+    OH.STATUS_ID,
+    OH.ORDER_DATE
+FROM ORDER_HEADER OH
+LEFT JOIN ORDER_ROLE ORR
+    ON OH.ORDER_ID = ORR.ORDER_ID
+    AND ORR.ROLE_TYPE_ID = 'SHIP_TO_CUSTOMER'
+LEFT JOIN ORDER_CONTACT_MECH OCM
+    ON OH.ORDER_ID = OCM.ORDER_ID
+    AND OCM.CONTACT_MECH_PURPOSE_TYPE_ID = 'SHIPPING_LOCATION'
+LEFT JOIN POSTAL_ADDRESS PA ON PA.CONTACT_MECH_ID = OCM.CONTACT_MECH_ID
+LEFT JOIN PERSON P ON P.PARTY_ID = ORR.PARTY_ID
+WHERE (
+    OH.ORDER_DATE >= '2023-10-01'
+    AND OH.ORDER_DATE < '2023-11-01'
+)
+OR (
+    OH.STATUS_ID = 'ORDER_COMPLETED'
+    AND OH.LAST_UPDATED_STAMP >= '2023-10-01'
+    AND OH.LAST_UPDATED_STAMP < '2023-11-01'
+);
+```
+
+---
+
+## Query 13 — Orders from New York
+
+```sql
+SELECT
+    OH.ORDER_ID,
+    P.FIRST_NAME,
+    P.LAST_NAME,
+    OH.GRAND_TOTAL,
+    PA.ADDRESS1,
+    PA.CITY,
+    PA.STATE_PROVINCE_GEO_ID,
+    PA.COUNTRY_GEO_ID,
+    OH.STATUS_ID,
+    OH.ORDER_DATE
+FROM ORDER_HEADER OH
+LEFT JOIN ORDER_ROLE ORR
+    ON OH.ORDER_ID = ORR.ORDER_ID
+    AND ORR.ROLE_TYPE_ID = 'SHIP_TO_CUSTOMER'
+LEFT JOIN ORDER_CONTACT_MECH OCM
+    ON OH.ORDER_ID = OCM.ORDER_ID
+    AND OCM.CONTACT_MECH_PURPOSE_TYPE_ID = 'SHIPPING_LOCATION'
+LEFT JOIN POSTAL_ADDRESS PA ON PA.CONTACT_MECH_ID = OCM.CONTACT_MECH_ID
+LEFT JOIN PERSON P ON P.PARTY_ID = ORR.PARTY_ID
+WHERE OH.STATUS_ID = 'ORDER_COMPLETED'
+  AND PA.STATE_PROVINCE_GEO_ID = 'NY';
+```
+
+---
+
+## Query 14 — Top-Selling Product in New York
+
+```sql
+WITH product_sales AS (
+    SELECT
+        OI.PRODUCT_ID,
+        PA.CITY,
+        P.INTERNAL_NAME,
+        PA.STATE_PROVINCE_GEO_ID,
+        SUM(OI.QUANTITY) AS quantity,
+        SUM(OI.QUANTITY * OI.UNIT_PRICE) AS revenue
+    FROM ORDER_HEADER OH
+    LEFT JOIN ORDER_ITEM OI ON OH.ORDER_ID = OI.ORDER_ID
+    LEFT JOIN PRODUCT P ON P.PRODUCT_ID = OI.PRODUCT_ID
+    LEFT JOIN ORDER_ROLE ORR
+        ON OH.ORDER_ID = ORR.ORDER_ID
+        AND ORR.ROLE_TYPE_ID = 'SHIP_TO_CUSTOMER'
+    LEFT JOIN ORDER_CONTACT_MECH OCM
+        ON OH.ORDER_ID = OCM.ORDER_ID
+        AND OCM.CONTACT_MECH_PURPOSE_TYPE_ID = 'SHIPPING_LOCATION'
+    LEFT JOIN POSTAL_ADDRESS PA ON PA.CONTACT_MECH_ID = OCM.CONTACT_MECH_ID
+    WHERE PA.STATE_PROVINCE_GEO_ID = 'NY'
+    GROUP BY OI.PRODUCT_ID, PA.CITY, PA.STATE_PROVINCE_GEO_ID
+)
+SELECT *
+FROM (
+    SELECT *,
+           ROW_NUMBER() OVER (
+               PARTITION BY CITY
+               ORDER BY quantity DESC
+           ) AS rn
+    FROM product_sales
+) t
+WHERE rn = 1;
+```
+
+---
+
+## Query 15 — Store-Specific (Facility-Wise) Revenue
+
+```sql
+SELECT
+    F.FACILITY_ID,
+    F.FACILITY_NAME,
+    COUNT(DISTINCT OI.ORDER_ID) AS TOTAL_ORDERS,
+    SUM(OI.QUANTITY * OI.UNIT_PRICE) AS TOTAL_REVENUE,
+    CONCAT(
+        MIN(DATE(OI.CREATED_STAMP)),
+        ' - ',
+        MAX(DATE(OI.CREATED_STAMP))
+    ) AS DATE_RANGE
+FROM ORDER_ITEM OI
+JOIN PRODUCT_FACILITY PF ON PF.PRODUCT_ID = OI.PRODUCT_ID
+JOIN FACILITY F ON F.FACILITY_ID = PF.FACILITY_ID
+GROUP BY PF.FACILITY_ID;
+```
+
+---
+
+## Query 16 — Lost and Damaged Inventory
+
+```sql
+SELECT
+    II.PRODUCT_ID,
+    II.FACILITY_ID,
+    SUM(IID.QUANTITY_ON_HAND_DIFF),
+    IID.REASON_ENUM_ID
+FROM INVENTORY_ITEM_DETAIL IID
+LEFT JOIN INVENTORY_ITEM II ON II.INVENTORY_ITEM_ID = IID.INVENTORY_ITEM_ID
+GROUP BY IID.INVENTORY_ITEM_ID, IID.REASON_ENUM_ID
+HAVING IID.Reason_Enum_Id = "VAR_DAMAGED"
+    OR IID.REASON_ENUM_ID = "VAR_LOST";
+```
+
+---
+
+## Query 17 — Low Stock or Out of Stock Items Report
+
+```sql
+SELECT
+    PF.PRODUCT_ID,
+    P.PRODUCT_NAME,
+    PF.FACILITY_ID,
+    COALESCE(II.QUANTITY_ON_HAND_TOTAL, 0) AS QOH,
+    COALESCE(II.AVAILABLE_TO_PROMISE, 0) AS ATP,
+    COALESCE(PF.MINIMUM_STOCK, 0) AS REORDER_THRESHOLD,
+    CURRENT_TIMESTAMP AS DATE_CHECKED
+FROM PRODUCT_FACILITY PF
+JOIN PRODUCT P ON PF.PRODUCT_ID = P.PRODUCT_ID
+LEFT JOIN INVENTORY_ITEM II
+    ON II.PRODUCT_ID = PF.PRODUCT_ID
+    AND II.FACILITY_ID = PF.FACILITY_ID
+WHERE COALESCE(II.AVAILABLE_TO_PROMISE, 0) < COALESCE(PF.MINIMUM_STOCK, 0)
+   OR COALESCE(II.AVAILABLE_TO_PROMISE, 0) <= 0;
+```
+
+---
+
+## Query 18 — Retrieve the Current Facility (Physical or Virtual) of Open Orders
+
+```sql
+SELECT DISTINCT
+    F.FACILITY_NAME,
+    F.FACILITY_TYPE_ID,
+    F.FACILITY_ID,
+    OH.STATUS_ID AS ORDER_STATUS,
+    OH.ORDER_ID
+FROM ORDER_ITEM OI
+INNER JOIN ORDER_HEADER OH ON OH.ORDER_ID = OI.ORDER_ID
+LEFT JOIN ORDER_ITEM_SHIP_GROUP OISG
+    ON OISG.ORDER_ID = OI.ORDER_ID
+    AND OISG.SHIP_GROUP_SEQ_ID = OI.SHIP_GROUP_SEQ_ID
+LEFT JOIN FACILITY F ON OISG.FACILITY_ID = F.FACILITY_ID
+WHERE OH.STATUS_ID <> "ORDER_COMPLETED"
+  AND OH.STATUS_ID <> "ORDER_CANCELLED";
+```
+
+---
+
+## Query 19 — Items Where QOH and ATP Differ
+
+```sql
+SELECT
+    product_id,
+    facility_id,
+    Quantity_on_Hand_Total,
+    Available_to_promise_total,
+    Quantity_on_Hand_Total - Available_to_promise_total AS Difference
+FROM Inventory_Item;
+```
+
+---
+
+## Query 20 — Order Item Current Status Changed Date-Time
+
+```sql
+SELECT
+    OS1.Order_id,
+    OS2.order_item_seq_id,
+    OS2.Status_id,
+    OS2.STATUS_USER_LOGIN,
+    OS2.STATUS_DATETIME
+FROM Order_Status OS1
+JOIN order_status OS2
+    ON OS1.order_id = OS2.order_id
+    AND OS1.order_item_seq_id = OS2.order_item_seq_id
+WHERE OS1.STATUS_ID = "ITEM_APPROVED"
+  AND OS2.STATUS_ID = "ITEM_COMPLETED";
+```
+
+---
+
+## Query 21 — Total Orders by Sales Channel
+
+```sql
+SELECT
+    SUM(COALESCE(OH.grand_total, 0) - COALESCE(Ad.Adjustments, 0)) AS totalRevenue,
+    OH.sales_channel_enum_id,
+    COUNT(OH.order_id) AS totalOrder,
+    CONCAT(MIN(DATE(OH.Entry_date)), '--', MAX(DATE(OH.Entry_date))) AS PERIOD
+FROM ORDER_HEADER OH
+LEFT JOIN (
+    SELECT
+        order_id,
+        SUM(Amount) AS Adjustments
+    FROM ORDER_ADJUSTMENT
+) Ad ON Ad.order_id = OH.order_id
+WHERE OH.status_id = "Order_completed"
+GROUP BY OH.sales_channel_enum_id;
+```
+
+---
+
+## Query 22 — Completed Sales Orders (Physical Items)
+
+```sql
+SELECT
+    oi.ORDER_ID,
+    oi.ORDER_ITEM_SEQ_ID,
+    p.PRODUCT_ID,
+    p.PRODUCT_TYPE_ID,
+    oh.SALES_CHANNEL_ENUM_ID,
+    oh.ORDER_DATE,
+    oh.ENTRY_DATE,
+    oh.STATUS_ID,
+    oh.ORDER_TYPE_ID,
+    oh.PRODUCT_STORE_ID,
+    NOW() AS Status_datetime
+FROM order_header oh
+JOIN order_item oi ON oh.order_id = oi.order_id
+LEFT JOIN product p ON p.product_id = oi.product_id
+WHERE p.product_type_id IN (
+    SELECT product_type_id
+    FROM product_type
+    WHERE is_physical = "y"
+)
+AND oi.status_id <> "item_cancelled"
+ORDER BY order_id ASC;
+```
+
+---
+
+## Query 23 — Completed Return Items
+
+```sql
+SELECT
+    p.party_id,
+    RI.order_id,
+    p.First_name,
+    p.last_name
+FROM Return_Header RH
+JOIN (
+    SELECT
+        Return_id,
+        order_id
+    FROM return_item
+    GROUP BY order_id
+    HAVING COUNT(order_id) = 1
+) RI ON RI.return_id = RH.return_id
+LEFT JOIN Person p ON p.party_id = RH.from_party_id
+WHERE RH.RETURN_DATE >= '2026-05-01' AND RETURN_DATE <= '2026-06-01';
+```
+
+---
+
+## Query 24 — Single-Return Orders (Last Month)
+
+```sql
+SELECT
+    p.party_id,
+    RI.order_id,
+    p.First_name,
+    p.last_name
+FROM Return_Header RH
+JOIN (
+    SELECT
+        Return_id,
+        order_id
+    FROM return_item
+    GROUP BY order_id
+    HAVING COUNT(order_id) = 1
+) RI ON RI.return_id = RH.return_id
+LEFT JOIN Person p ON p.party_id = RH.from_party_id;
+```
+
+---
+
+## Query 25 — Returns and Appeasements
+
+```sql
+SELECT
+    COUNT(RI.return_id) AS total_return,
+    SUM(
+        CASE
+            WHEN RA.return_adjustment_type_id = 'Appeasement' THEN 1
+            ELSE 0
+        END
+    ) AS appeasement_count
+FROM RETURN_ITEM RI
+JOIN RETURN_ADJUSTMENT RA ON RI.return_id = RA.return_id
+GROUP BY RA.return_adjustment_id;
+```
+
+---
+
+## Query 26 — Detailed Return Information
+
+```sql
+SELECT
+    RH.RETURN_ID,
+    OH.ENTRY_DATE,
+    RA.RETURN_ADJUSTMENT_TYPE_ID,
+    RA.AMOUNT,
+    COMMENTS,
+    OH.ORDER_ID,
+    OH.ORDER_DATE,
+    RH.RETURN_DATE,
+    OH.PRODUCT_STORE_ID
+FROM RETURN_HEADER RH
+JOIN RETURN_ITEM RI ON RH.RETURN_ID = RI.RETURN_ID
+LEFT JOIN ORDER_HEADER OH ON RI.ORDER_ID = OH.ORDER_ID
+LEFT JOIN RETURN_ADJUSTMENT RA ON RA.RETURN_ID = RI.RETURN_ID;
+```
+
+---
+
+## Query 27 — Orders with Multiple Returns
+
+```sql
+SELECT DISTINCT
+    RI.ORDER_ID,
+    RI.RETURN_ID,
+    RH.RETURN_DATE,
+    RI.RETURN_REASON_ID,
+    RI.RETURN_QUANTITY
+FROM RETURN_ITEM RI
+JOIN (
+    SELECT ORDER_ID
+    FROM RETURN_ITEM
+    GROUP BY ORDER_ID
+    HAVING COUNT(DISTINCT RETURN_ID) >= 2
+) AS FO ON FO.ORDER_ID = RI.ORDER_ID
+LEFT JOIN RETURN_HEADER RH ON RH.RETURN_ID = RI.RETURN_ID;
+```
+
+---
+
+## Query 28 — Store with Most One-Day Shipped Orders (Last Month)
+
+```sql
+SELECT
+    OIS.FACILITY_ID,
+    F.FACILITY_NAME,
+    DATE_SUB(NOW(), INTERVAL 1 MONTH) AS REPORTING_PERIOD,
+    COUNT(OI.ORDER_ID) AS TOTAL_ORDER_ITEM
+FROM ORDER_ITEM OI
+JOIN ORDER_ITEM_SHIP_GROUP OIS
+    ON OIS.ORDER_ID = OI.ORDER_ID
+    AND OIS.SHIP_GROUP_SEQ_ID = OI.SHIP_GROUP_SEQ_ID
+LEFT JOIN FACILITY F ON OIS.FACILITY_ID = F.FACILITY_ID
+JOIN ORDER_STATUS OS
+    ON OS.ORDER_ID = OI.ORDER_ID
+    AND OS.STATUS_ID = 'ITEM_COMPLETED'
+WHERE OIS.SHIPMENT_METHOD_TYPE_ID = 'NEXT_DAY'
+  AND F.FACILITY_TYPE_ID NOT IN (
+      SELECT FACILITY_TYPE_ID
+      FROM FACILITY_TYPE
+      WHERE PARENT_TYPE_ID = 'VIRTUAL_FACILITY'
+  )
+  AND OI.STATUS_ID = 'ITEM_COMPLETED'
+  AND OS.STATUS_DATETIME >= DATE_SUB(NOW(), INTERVAL 1 MONTH)
+GROUP BY OIS.FACILITY_ID, F.FACILITY_NAME;
+```
+
+---
+
+## Query 29 — List of Warehouse Pickers
+
+```sql
+SELECT
+    P.PARTY_ID,
+    CONCAT(PER.FIRST_NAME, ' ', PER.LAST_NAME) AS NAME,
+    P.STATUS_ID,
+    FP.FACILITY_ID
+FROM PARTY P
+LEFT JOIN PERSON PER ON P.PARTY_ID = PER.PARTY_ID
+JOIN PARTY_ROLE PR
+    ON P.PARTY_ID = PR.PARTY_ID
+    AND PR.ROLE_TYPE_ID = 'WAREHOUSE_PICKER'
+LEFT JOIN FACILITY_PARTY FP
+    ON FP.PARTY_ID = P.PARTY_ID
+    AND FP.ROLE_TYPE_ID = 'WAREHOUSE_PICKER';
+```
+
+---
+
+## Query 30 — Total Facilities That Sell the Product
+
+```sql
+SELECT
+    P.PRODUCT_ID,
+    P.INTERNAL_NAME,
+    COALESCE(COUNT(DISTINCT PF.FACILITY_ID), 0) AS FACILITY_COUNT
+FROM PRODUCT P
+JOIN PRODUCT_PRICE PP
+    ON PP.PRODUCT_ID = P.PRODUCT_ID
+    AND PP.PRODUCT_PRICE_TYPE_ID = 'LIST_PRICE'
+LEFT JOIN PRODUCT_FACILITY PF ON PF.PRODUCT_ID = P.PRODUCT_ID
+GROUP BY PF.PRODUCT_ID;
+```
+
+---
+
+## Query 31 — Total Items in Various Virtual Facilities
+
+```sql
+SELECT
+    PF.PRODUCT_ID,
+    PF.FACILITY_ID,
+    F.FACILITY_TYPE_ID,
+    II.QUANTITY_ON_HAND_TOTAL AS QOH,
+    II.AVAILABLE_TO_PROMISE_TOTAL AS ATP
+FROM PRODUCT_FACILITY PF
+LEFT JOIN INVENTORY_ITEM II
+    ON II.PRODUCT_ID = PF.PRODUCT_ID
+    AND II.FACILITY_ID = PF.FACILITY_ID
+JOIN FACILITY F ON F.FACILITY_ID = PF.FACILITY_ID
+WHERE F.FACILITY_TYPE_ID NOT IN (
+    SELECT FACILITY_TYPE_ID
+    FROM FACILITY_TYPE
+    WHERE PARENT_TYPE_ID = 'VIRTUAL_FACILITY'
+);
+```
+
+---
+
+## Query 32 — Transfer Orders Without Inventory Reservation
+
+```sql
+SELECT
+    OH.ORDER_ID AS TRANSFER_ORDER_ID,
+    OH.ORIGIN_FACILITY_ID AS FROM_FACILITY_ID,
+    OIS.FACILITY_ID AS TO_FACILITY_ID,
+    OI.PRODUCT_ID,
+    OI.QUANTITY AS REQUESTED_QUANTITY,
+    0 AS RESERVED_QUANTITY,
+    DATE(OH.ORDER_DATE) AS TRANSFER_DATE,
+    OH.STATUS_ID AS STATUS
+FROM ORDER_HEADER OH
+JOIN ORDER_ITEM OI ON OI.ORDER_ID = OH.ORDER_ID
+JOIN ORDER_ITEM_SHIP_GROUP OIS ON OIS.ORDER_ID = OH.ORDER_ID
+LEFT JOIN ORDER_ITEM_SHIP_GRP_INV_RES OTSHIR
+    ON OTSHIR.ORDER_ID = OIS.ORDER_ID
+    AND OTSHIR.SHIP_GROUP_SEQ_ID = OIS.SHIP_GROUP_SEQ_ID
+    AND OTSHIR.ORDER_ITEM_SEQ_ID = OI.ORDER_ITEM_SEQ_ID
+WHERE OH.ORDER_TYPE_ID = 'TRANSFER_ORDER'
+  AND OTSHIR.RESERVED_DATETIME IS NULL
+  AND OH.STATUS_ID = 'ORDER_APPROVED'
+ORDER BY OH.ORDER_ID;
+```
+
+---
+
+## Query 33 — Orders Without Picklist
+
+```sql
+SELECT DISTINCT
+    OH.ORDER_ID,
+    DATE(OH.ORDER_DATE) AS ORDER_DATE,
+    OH.STATUS_ID AS ORDER_STATUS,
+    OIS.FACILITY_ID,
+    DATEDIFF(NOW(), OIS.CREATED_STAMP) AS DURATION_IN_DAYS
+FROM ORDER_HEADER OH
+JOIN ORDER_ITEM_SHIP_GROUP OIS ON OH.ORDER_ID = OIS.ORDER_ID
+LEFT JOIN SHIPMENT S ON OIS.ORDER_ID = S.PRIMARY_ORDER_ID
+LEFT JOIN FACILITY F ON F.FACILITY_ID = OIS.FACILITY_ID
+WHERE S.SHIPMENT_ID IS NULL
+  AND OH.STATUS_ID = 'ORDER_APPROVED'
+  AND F.FACILITY_TYPE_ID NOT IN (
+      SELECT FACILITY_TYPE_ID
+      FROM FACILITY_TYPE
+      WHERE PARENT_TYPE_ID = 'VIRTUAL_FACILITY'
+  )
+ORDER BY DURATION_IN_DAYS DESC;
+```
