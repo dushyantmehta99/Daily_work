@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+
+<forms xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://ofbiz.apache.org/Widget-Form" xsi:schemaLocation="http://ofbiz.apache.org/Widget-Form http://ofbiz.apache.org/dtds/widget-form.xsd">
+
+    <!-- List form to display all products -->
+    <form name="ProductListForm" type="list" list-name="productList"
+          odd-row-style="alternate-row" default-table-style="basic-table hover-bar">
+        <field name="productId" title="Product ID"><display/></field>
+        <field name="productName" title="Product Name"><display/></field>
+        <field name="productTypeId" title="Product Type"><display/></field>
+        <field name="isVirtual" title="Virtual?"><display/></field>
+        <field name="isVariant" title="Variant?"><display/></field>
+    </form>
+
+    <!-- Form to create a new product (moved from ProductMenus.xml where it was misplaced) -->
+    <form name="CreateProductForm" type="single">
+        <field name="productId"><text/></field>
+        <field name="productName"><text/></field>
+        <field name="productTypeId">
+            <drop-down>
+                <option key="FINISHED_GOOD" description="Finished Good"/>
+                <option key="GOOD" description="Good"/>
+                <option key="SERVICE" description="Service"/>
+            </drop-down>
+        </field>
+        <field name="isVirtual">
+            <drop-down>
+                <option key="Y" description="Yes"/>
+                <option key="N" description="No"/>
+            </drop-down>
+        </field>
+        <field name="isVariant">
+            <drop-down>
+                <option key="Y" description="Yes"/>
+                <option key="N" description="No"/>
+            </drop-down>
+        </field>
+    </form>
+
+</forms>

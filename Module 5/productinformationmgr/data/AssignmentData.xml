@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<entity-engine-xml>
+
+    <!-- ========================================== -->
+    <!-- 1. Create Base Products (Referenced in JSON) -->
+    <!-- ========================================== -->
+    <Product productId="PROD10000" productTypeId="FINISHED_GOOD" productName="Smartphone" isVirtual="Y" isVariant="N"/>
+    <Product productId="PROD10001" productTypeId="FINISHED_GOOD" productName="Smartphone 128GB" isVirtual="N" isVariant="Y"/>
+    <Product productId="PROD10002" productTypeId="FINISHED_GOOD" productName="Smartphone 256GB" isVirtual="N" isVariant="Y"/>
+    <Product productId="PROD20000" productTypeId="FINISHED_GOOD" productName="Laptop" isVirtual="Y" isVariant="N"/>
+    <Product productId="PROD20001" productTypeId="FINISHED_GOOD" productName="Laptop Black" isVirtual="N" isVariant="Y"/>
+    <Product productId="PROM001" productTypeId="FINISHED_GOOD" productName="Promo Item" isVirtual="N" isVariant="N"/>
+
+    <!-- ========================================== -->
+    <!-- 2. Product Features                        -->
+    <!-- ========================================== -->
+    <ProductFeatureType productFeatureTypeId="MEMORY" description="Memory Capacity"/>
+    <ProductFeatureType productFeatureTypeId="COLOR" description="Color"/>
+
+    <ProductFeature productFeatureId="128GB" productFeatureTypeId="MEMORY" description="128 GB Memory"/>
+    <ProductFeature productFeatureId="256GB" productFeatureTypeId="MEMORY" description="256 GB Memory"/>
+    <ProductFeature productFeatureId="BLACK" productFeatureTypeId="COLOR" description="Black Color"/>
+
+    <ProductFeatureAppl productId="PROD10000" productFeatureId="128GB" fromDate="2023-06-01 00:00:00" productFeatureApplTypeId="SELECTABLE_FEATURE"/>
+    <ProductFeatureAppl productId="PROD10000" productFeatureId="256GB" fromDate="2023-06-01 00:00:00" productFeatureApplTypeId="SELECTABLE_FEATURE"/>
+    <ProductFeatureAppl productId="PROD10001" productFeatureId="128GB" fromDate="2023-06-01 00:00:00" productFeatureApplTypeId="STANDARD_FEATURE"/>
+    <ProductFeatureAppl productId="PROD10002" productFeatureId="256GB" fromDate="2023-08-01 00:00:00" productFeatureApplTypeId="STANDARD_FEATURE"/>
+    <ProductFeatureAppl productId="PROD20000" productFeatureId="BLACK" fromDate="2023-09-01 00:00:00" productFeatureApplTypeId="STANDARD_FEATURE"/>
+    <ProductFeatureAppl productId="PROD20001" productFeatureId="BLACK" fromDate="2023-09-01 00:00:00" productFeatureApplTypeId="STANDARD_FEATURE"/>
+
+    <!-- ========================================== -->
+    <!-- 3 & 4. Product Categories & Members        -->
+    <!-- ========================================== -->
+    <ProductCategoryType productCategoryTypeId="CATALOG_CATEGORY" description="Catalog Category"/>
+    <ProductCategoryType productCategoryTypeId="SEARCH_CATEGORY" description="Search Category"/>
+    <ProductCategoryType productCategoryTypeId="TAX_CATEGORY" description="Tax Category"/>
+
+    <!-- Browse Root -->
+    <ProductCategory productCategoryId="BROWSE_ROOT" productCategoryTypeId="CATALOG_CATEGORY" categoryName="Browse Root"/>
+    <ProductCategoryMember productId="PROD10000" productCategoryId="BROWSE_ROOT" fromDate="2023-01-01 00:00:00"/>
+    <ProductCategoryMember productId="PROD10001" productCategoryId="BROWSE_ROOT" fromDate="2023-01-01 00:00:00"/>
+    <ProductCategoryMember productId="PROD10002" productCategoryId="BROWSE_ROOT" fromDate="2023-01-01 00:00:00"/>
+    <ProductCategoryMember productId="PROD20000" productCategoryId="BROWSE_ROOT" fromDate="2023-01-01 00:00:00"/>
+    <ProductCategoryMember productId="PROD20001" productCategoryId="BROWSE_ROOT" fromDate="2023-01-01 00:00:00"/>
+    <ProductCategoryMember productId="PROM001" productCategoryId="BROWSE_ROOT" fromDate="2023-10-01 00:00:00"/>
+
+    <!-- Search Category -->
+    <ProductCategory productCategoryId="SEARCH" productCategoryTypeId="SEARCH_CATEGORY" categoryName="Search"/>
+    <ProductCategoryMember productId="PROD10000" productCategoryId="SEARCH" fromDate="2023-06-01 00:00:00"/>
+    <ProductCategoryMember productId="PROD10001" productCategoryId="SEARCH" fromDate="2023-06-01 00:00:00"/>
+    <ProductCategoryMember productId="PROD10002" productCategoryId="SEARCH" fromDate="2023-08-01 00:00:00"/>
+    <ProductCategoryMember productId="PROD20000" productCategoryId="SEARCH" fromDate="2023-09-01 00:00:00"/>
+    <ProductCategoryMember productId="PROD20001" productCategoryId="SEARCH" fromDate="2023-09-01 00:00:00"/>
+    <ProductCategoryMember productId="PROM001" productCategoryId="SEARCH" fromDate="2023-10-01 00:00:00"/>
+
+    <!-- View Allow -->
+    <ProductCategory productCategoryId="VIEW_ALLOW" productCategoryTypeId="CATALOG_CATEGORY" categoryName="View Allow"/>
+    <ProductCategoryMember productId="PROD10001" productCategoryId="VIEW_ALLOW" fromDate="2023-06-01 00:00:00"/>
+    <ProductCategoryMember productId="PROD10002" productCategoryId="VIEW_ALLOW" fromDate="2023-08-01 00:00:00"/>
+    <ProductCategoryMember productId="PROD20000" productCategoryId="VIEW_ALLOW" fromDate="2023-09-01 00:00:00"/>
+    <ProductCategoryMember productId="PROD20001" productCategoryId="VIEW_ALLOW" fromDate="2023-09-01 00:00:00"/>
+    <ProductCategoryMember productId="PROM001" productCategoryId="VIEW_ALLOW" fromDate="2023-10-01 00:00:00" thruDate="2023-11-15 00:00:00"/>
+
+    <!-- Purchase Allow -->
+    <ProductCategory productCategoryId="PURCHASE_ALLOW" productCategoryTypeId="CATALOG_CATEGORY" categoryName="Purchase Allow"/>
+    <ProductCategoryMember productId="PROD10000" productCategoryId="PURCHASE_ALLOW" fromDate="2023-06-15 00:00:00"/>
+    <ProductCategoryMember productId="PROD10001" productCategoryId="PURCHASE_ALLOW" fromDate="2023-06-15 00:00:00"/>
+    <ProductCategoryMember productId="PROD10002" productCategoryId="PURCHASE_ALLOW" fromDate="2023-08-15 00:00:00"/>
+    <ProductCategoryMember productId="PROD20000" productCategoryId="PURCHASE_ALLOW" fromDate="2023-09-15 00:00:00"/>
+    <ProductCategoryMember productId="PROD20001" productCategoryId="PURCHASE_ALLOW" fromDate="2023-09-15 00:00:00"/>
+    <ProductCategoryMember productId="PROM001" productCategoryId="PURCHASE_ALLOW" fromDate="2023-10-01 00:00:00" thruDate="2023-11-15 00:00:00"/>
+
+    <!-- Luxury Tax -->
+    <ProductCategory productCategoryId="LUXURY_TAX_CATEGORY" productCategoryTypeId="TAX_CATEGORY" categoryName="Luxury Tax"/>
+    <ProductCategoryMember productId="PROD10002" productCategoryId="LUXURY_TAX_CATEGORY" fromDate="2023-08-15 00:00:00"/>
+    <ProductCategoryMember productId="PROD20001" productCategoryId="LUXURY_TAX_CATEGORY" fromDate="2023-09-15 00:00:00"/>
+
+    <!-- Promotions Category -->
+    <ProductCategory productCategoryId="PROMOTIONS" productCategoryTypeId="CATALOG_CATEGORY" parentProductCategoryId="BROWSE_ROOT" categoryName="Promotions"/>
+    <ProductCategoryMember productId="PROD10002" productCategoryId="PROMOTIONS" fromDate="2023-08-15 00:00:00" thruDate="2023-08-31 00:00:00"/>
+    <ProductCategoryMember productId="PROM001" productCategoryId="PROMOTIONS" fromDate="2023-10-01 00:00:00" thruDate="2023-11-15 00:00:00"/>
+
+    <!-- Most Popular -->
+    <ProductCategory productCategoryId="MOST_POPULAR" productCategoryTypeId="CATALOG_CATEGORY" parentProductCategoryId="BROWSE_ROOT" categoryName="Most Popular"/>
+    <ProductCategoryMember productId="PROD10002" productCategoryId="MOST_POPULAR" fromDate="2023-09-01 00:00:00"/>
+
+    <!-- Whats New -->
+    <ProductCategory productCategoryId="WHATS_NEW" productCategoryTypeId="CATALOG_CATEGORY" parentProductCategoryId="BROWSE_ROOT" categoryName="Whats New"/>
+    <ProductCategoryMember productId="PROD20000" productCategoryId="WHATS_NEW" fromDate="2023-09-01 00:00:00" thruDate="2023-10-31 00:00:00"/>
+    <ProductCategoryMember productId="PROD20001" productCategoryId="WHATS_NEW" fromDate="2023-09-01 00:00:00" thruDate="2023-10-31 00:00:00"/>
+
+    <!-- ========================================== -->
+    <!-- 5. Product Associations                    -->
+    <!-- ========================================== -->
+    <!-- Base products for association examples to satisfy foreign key constraints -->
+    <Product productId="T-Shirt" productTypeId="FINISHED_GOOD" isVirtual="Y" isVariant="N"/>
+    <Product productId="SS-SR" productTypeId="FINISHED_GOOD" isVirtual="N" isVariant="Y"/>
+    <Product productId="SS-SB" productTypeId="FINISHED_GOOD" isVirtual="N" isVariant="Y"/>
+    
+    <Product productId="Compaq_260S" productTypeId="MARKETING_PKG"/>
+    <Product productId="Compaq_Monitor" productTypeId="FINISHED_GOOD"/>
+    <Product productId="Compaq_Keyboard" productTypeId="FINISHED_GOOD"/>
+    <Product productId="Compaq_CPU" productTypeId="FINISHED_GOOD"/>
+    <Product productId="Compaq_Speaker" productTypeId="FINISHED_GOOD"/>
+    
+    <Product productId="9000" productTypeId="FINISHED_GOOD"/>
+    <Product productId="9004" productTypeId="FINISHED_GOOD"/>
+    <Product productId="9005" productTypeId="FINISHED_GOOD"/>
+
+    <!-- Product Variant Association -->
+    <ProductAssoc fromDate="2001-05-13 12:00:00.0" productAssocTypeId="PRODUCT_VARIANT" productId="T-Shirt" productIdTo="SS-SR" quantity="1.0"/>
+    <ProductAssoc fromDate="2001-05-13 12:00:00.0" productAssocTypeId="PRODUCT_VARIANT" productId="T-Shirt" productIdTo="SS-SB" quantity="1.0"/>
+
+    <!-- Product Component Association -->
+    <ProductAssoc productId="Compaq_260S" productIdTo="Compaq_Monitor" productAssocTypeId="PRODUCT_COMPONENT" quantity="1" fromDate="2007-01-01 12:00:00.0"/>
+    <ProductAssoc productId="Compaq_260S" productIdTo="Compaq_Keyboard" productAssocTypeId="PRODUCT_COMPONENT" quantity="1" fromDate="2007-01-01 12:00:00.0"/>
+    <ProductAssoc productId="Compaq_260S" productIdTo="Compaq_CPU" productAssocTypeId="PRODUCT_COMPONENT" quantity="1" fromDate="2007-01-01 12:00:00.0"/>
+    <ProductAssoc productId="Compaq_260S" productIdTo="Compaq_Speaker" productAssocTypeId="PRODUCT_COMPONENT" quantity="2" fromDate="2007-01-01 12:00:00.0"/>
+
+    <!-- Upgrade (Up-Sell) Product Association -->
+    <ProductAssoc fromDate="2010-07-16 18:07:41.64" productAssocTypeId="PRODUCT_UPGRADE" productId="9000" productIdTo="9004" sequenceNum="1"/>
+    <ProductAssoc fromDate="2010-07-16 18:06:59.267" productAssocTypeId="PRODUCT_UPGRADE" productId="9000" productIdTo="9005" sequenceNum="2"/>
+
+    <!-- Complementary (Cross-Sell) Product Association -->
+    <ProductAssoc productAssocTypeId="PRODUCT_COMPLEMENT" productId="9000" productIdTo="9004" sequenceNum="1" fromDate="2010-07-16 18:07:41.64"/>
+    <ProductAssoc productAssocTypeId="PRODUCT_COMPLEMENT" productId="9000" productIdTo="9005" sequenceNum="2" fromDate="2010-07-16 18:06:59.267"/>
+
+    <!-- Recommended (Also Bought) Product Association -->
+    <ProductAssoc productAssocTypeId="ALSO_BOUGHT" productId="9000" productIdTo="9004" fromDate="2010-07-16 18:06:59.267"/>
+    <ProductAssoc productAssocTypeId="ALSO_BOUGHT" productId="9000" productIdTo="9005" fromDate="2010-07-16 18:07:41.64"/>
+
+    <!-- ========================================== -->
+    <!-- 6. Facility Data Model                     -->
+    <!-- ========================================== -->
+    <!-- Facility Types -->
+    <FacilityType facilityTypeId="WAREHOUSE" description="Warehouse"/>
+    <FacilityType facilityTypeId="STORE" description="Store"/>
+
+    <!-- Facilities -->
+    <Facility facilityId="FAC001" facilityTypeId="WAREHOUSE" facilityName="Main Warehouse"/>
+    <Facility facilityId="FAC002" facilityTypeId="STORE" facilityName="SoHo Store" parentFacilityId="FAC001"/>
+
+    <!-- Facility Locations -->
+    <FacilityLocation facilityId="FAC001" locationSeqId="1" areaId="AREA1" aisleId="AISLE1" sectionId="SEC1" levelId="LEVEL1" positionId="POS1"/>
+    <FacilityLocation facilityId="FAC001" locationSeqId="2" areaId="AREA1" aisleId="AISLE1" sectionId="SEC1" levelId="LEVEL1" positionId="POS2"/>
+    <FacilityLocation facilityId="FAC001" locationSeqId="3" areaId="AREA1" aisleId="AISLE1" sectionId="SEC2" levelId="LEVEL1" positionId="POS1"/>
+
+    <!-- Product Facility -->
+    <ProductFacility facilityId="FAC001" productId="PROD10001"/>
+    <ProductFacility facilityId="FAC001" productId="PROD10002"/>
+    <ProductFacility facilityId="FAC001" productId="PROD20001"/>
+
+    <!-- Product Facility Location -->
+    <ProductFacilityLocation productId="PROD10001" facilityId="FAC001" locationSeqId="1"/>
+    <ProductFacilityLocation productId="PROD10002" facilityId="FAC001" locationSeqId="2"/>
+    <ProductFacilityLocation productId="PROD20001" facilityId="FAC001" locationSeqId="3"/>
+
+    <!-- Party & Facility Party -->
+    <RoleType roleTypeId="EMPLOYEE" description="Employee"/>
+    <Party partyId="PER123" partyTypeId="PERSON"/>
+    <Person partyId="PER123" firstName="John" lastName="Doe"/>
+    <PartyRole partyId="PER123" roleTypeId="EMPLOYEE"/>
+    <FacilityParty facilityId="FAC001" partyId="PER123" roleTypeId="EMPLOYEE" fromDate="2023-01-01 00:00:00"/>
+
+    <!-- Facility Groups -->
+    <FacilityGroupType facilityGroupTypeId="FULFILLMENT" description="Fulfillment Group"/>
+    <FacilityGroup facilityGroupId="GRP001" facilityGroupTypeId="FULFILLMENT" facilityGroupName="Fulfillment Group"/>
+    <FacilityGroupMember facilityGroupId="GRP001" facilityId="FAC001" fromDate="2023-01-01 00:00:00"/>
+    <FacilityGroupMember facilityGroupId="GRP001" facilityId="FAC002" fromDate="2023-01-01 00:00:00"/>
+
+    <!-- Facility Contact Mechs -->
+    <ContactMech contactMechId="10000" contactMechTypeId="TELECOM_NUMBER"/>
+    <ContactMech contactMechId="10002" contactMechTypeId="POSTAL_ADDRESS"/>
+    <ContactMech contactMechId="10004" contactMechTypeId="POSTAL_ADDRESS"/>
+
+    <FacilityContactMech facilityId="FAC001" contactMechId="10002" contactMechPurposeTypeId="SHIPPING_LOCATION" fromDate="2000-01-01 00:00:00"/>
+    <FacilityContactMech facilityId="FAC001" contactMechId="10000" contactMechPurposeTypeId="PRIMARY_PHONE" fromDate="2000-01-01 00:00:00"/>
+    <FacilityContactMech facilityId="FAC002" contactMechId="10004" contactMechPurposeTypeId="PRIMARY_LOCATION" fromDate="2000-01-01 00:00:00"/>
+
+</entity-engine-xml>
