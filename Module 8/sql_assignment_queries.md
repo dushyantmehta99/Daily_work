@@ -9,16 +9,33 @@ SELECT
     p.party_id,
     pp.first_name,
     pp.last_name,
-    cm.info_String,
-    tn.contact_number
+    p.created_stamp AS entry_date,
+    cm_email.info_string AS email,
+    tn.contact_number AS phone
 FROM party p
-LEFT JOIN party_role pr ON p.party_id = pr.party_id
-LEFT JOIN person pp ON pp.party_id = pr.party_id
-LEFT JOIN Party_Contact_mech pcm ON pcm.party_id = pp.party_id
-LEFT JOIN contact_mech cm ON pcm.contact_mech_id = cm.contact_mech_id
-LEFT JOIN telecom_number tn ON cm.contact_mech_id = tn.contact_mech_id
-WHERE pr.role_type_id = "CUSTOMER"
-  AND p.created_stamp BETWEEN "2023-06-01" AND "2023-07-01";
+
+JOIN party_role pr
+    ON p.party_id = pr.party_id
+
+JOIN person pp
+    ON pp.party_id = p.party_id
+
+LEFT JOIN party_contact_mech pcm_email
+    ON p.party_id = pcm_email.party_id
+
+LEFT JOIN contact_mech cm_email
+    ON pcm_email.contact_mech_id = cm_email.contact_mech_id
+   AND cm_email.contact_mech_type_id = 'EMAIL_ADDRESS'
+
+LEFT JOIN party_contact_mech pcm_phone
+    ON p.party_id = pcm_phone.party_id
+
+LEFT JOIN telecom_number tn
+    ON pcm_phone.contact_mech_id = tn.contact_mech_id
+
+WHERE pr.role_type_id = 'CUSTOMER'
+  AND p.created_stamp >= '2025-06-01'
+  AND p.created_stamp < '2026-07-01';
 ```
 
 ---
@@ -31,12 +48,11 @@ SELECT
     product_type_id,
     internal_name
 FROM product
-WHERE (SALES_DISCONTINUATION_DATE IS NULL OR SALES_DISCONTINUATION_DATE > NOW())
-  AND product_type_id NOT IN (
-      SELECT product_type_id
-      FROM product_type
-      WHERE is_physical = "N"
-  );
+WHERE product_type_id = 'FINISHED_GOOD'
+  AND (
+        sales_discontinuation_date IS NULL
+        OR sales_discontinuation_date > CURRENT_TIMESTAMP
+      );
 ```
 
 ---
@@ -46,15 +62,16 @@ WHERE (SALES_DISCONTINUATION_DATE IS NULL OR SALES_DISCONTINUATION_DATE > NOW())
 ```sql
 SELECT
     p.product_id,
-    p.Internal_name,
+    p.internal_name,
     p.product_type_id,
-    gi.good_identification_type_id
+    gi.id_value AS netsuite_id
 FROM product p
+
 LEFT JOIN good_identification gi
-    ON p.product_id = gi.product_id
-    AND gi.good_identification_type_id = 'ERP_ID'
-WHERE p.product_type_id = 'FINISHED_GOOD'
-  AND gi.id_value IS NULL;
+       ON p.product_id = gi.product_id
+      AND gi.good_identification_type_id = 'ERP_ID'
+
+WHERE gi.id_value IS NULL;
 ```
 
 ---
@@ -64,15 +81,16 @@ WHERE p.product_type_id = 'FINISHED_GOOD'
 ```sql
 SELECT
     p.product_id,
-    CASE WHEN GI.good_Identification_type_id = "ERP_ID"
-         THEN GI.good_Identification_type_id ELSE NULL END AS NS_id,
-    CASE WHEN GI.good_Identification_type_id = "HS_CODE"
-         THEN GI.good_Identification_type_id ELSE NULL END AS HS_id,
-    CASE WHEN GI.good_Identification_type_id = "SHOPIFY_PROD_ID"
-         THEN GI.good_Identification_type_id ELSE NULL END AS Shopify_id
+    gi_erp.id_value AS ns_id,
+    gi_hs.id_value AS hs_id,
+    gi_shop.id_value AS shopify_id
 FROM product p
-LEFT JOIN good_Identification GI ON GI.product_id = p.product_id
-WHERE product_type_id = "FINISHED_GOOD";
+LEFT JOIN good_identification gi_erp 
+    ON p.product_id = gi_erp.product_id AND gi_erp.good_identification_type_id = 'ERP_ID'
+LEFT JOIN good_identification gi_hs 
+    ON p.product_id = gi_hs.product_id AND gi_hs.good_identification_type_id = 'HS_CODE'
+LEFT JOIN good_identification gi_shop 
+    ON p.product_id = gi_shop.product_id AND gi_shop.good_identification_type_id = 'SHOPIFY_PROD_ID';
 ```
 
 ---
@@ -80,660 +98,643 @@ WHERE product_type_id = "FINISHED_GOOD";
 ## Query 5 — Completed Orders in August 2023
 
 ```sql
-SELECT  
-    p.PRODUCT_ID, 
-    psc.PRODUCT_STORE_ID,
-    p.INTERNAL_NAME,
-    p.PRODUCT_TYPE_ID, 
-    ohis.ORDER_HISTORY_ID,
-    OI.QUANTITY,
-    f.FACILITY_ID, 
-    OI.EXTERNAL_ID,
-    f.FACILITY_TYPE_ID,
-    OI.ORDER_ID,
-    OI.ORDER_ITEM_SEQ_ID, 
-    OI.SHIP_GROUP_SEQ_ID 
-FROM 
-    ORDER_ITEM OI 
-LEFT JOIN 
-    PRODUCT p 
-    ON p.PRODUCT_ID = OI.PRODUCT_ID 
-LEFT JOIN 
-    ORDER_ITEM_SHIP_GROUP oisg  
-    ON OI.ORDER_ID = oisg.ORDER_ID 
-    AND OI.SHIP_GROUP_SEQ_ID = oisg.SHIP_GROUP_SEQ_ID
-LEFT JOIN 
-    FACILITY f 
-    ON f.FACILITY_ID = oisg.FACILITY_ID 
-    AND oisg.FACILITY_ID <> '_NA_'
-LEFT JOIN 
-    PRODUCT_STORE_CATALOG psc 
-    ON OI.PROD_CATALOG_ID = psc.PROD_CATALOG_ID
-LEFT JOIN 
-    ORDER_HISTORY ohis 
-    ON ohis.ORDER_ID = OI.ORDER_ID 
-    AND ohis.ORDER_ITEM_SEQ_ID = OI.ORDER_ITEM_SEQ_ID 
-JOIN 
-    ORDER_STATUS os 
-    ON os.ORDER_ID = OI.ORDER_ID 
-    AND os.ORDER_ITEM_SEQ_ID = OI.ORDER_ITEM_SEQ_ID 
-WHERE 
-    os.STATUS_ID = 'ITEM_COMPLETED' 
-    AND os.STATUS_DATETIME >= '2023-08-01' 
-    AND os.STATUS_DATETIME <= '2023-09-01';
+SELECT
+    oi.product_id,
+    p.product_type_id,
+    oh.product_store_id,
+    oi.quantity AS total_quantity,
+    p.internal_name,
+    f.facility_id,
+    f.external_id,
+    f.facility_type_id,
+    os.order_status_id AS order_history_id,
+    oh.order_id,
+    oi.order_item_seq_id
+FROM order_header oh
+
+JOIN order_item oi
+    ON oh.order_id = oi.order_id
+
+JOIN product p
+    ON oi.product_id = p.product_id
+
+LEFT JOIN order_status os
+    ON oh.order_id = os.order_id
+
+LEFT JOIN order_item_ship_group oisg
+    ON oh.order_id = oisg.order_id
+
+LEFT JOIN facility f
+    ON oisg.facility_id = f.facility_id
+
+WHERE oh.status_id = 'ORDER_COMPLETED'
+  AND oh.order_date >= '2023-08-01'
+  AND oh.order_date < '2023-09-01';
 ```
 
 ---
 
-## Query 6 — Newly Created Sales Orders and Payment Methods
+## Query 7 — Newly Created Sales Orders and Payment Methods
 
 ```sql
 SELECT
-    OPP.Payment_Method_Type_Id,
-    OPP.order_id,
-    OPP.MAX_Amount,
-    OH.External_iD
-FROM ORDER_PAYMENT_PREFERENCE OPP
-LEFT JOIN ORDER_HEADER OH ON OH.ORDER_ID = OPP.ORDER_ID
-ORDER BY OPP.ORDER_ID;
+    opp.payment_method_type_id,
+    opp.order_id,
+    opp.max_amount,
+    oh.external_id
+FROM order_payment_preference opp
+JOIN order_header oh
+    ON oh.order_id = opp.order_id
+WHERE oh.order_type_id = 'SALES_ORDER'
+ORDER BY opp.order_id;
 ```
 
 ---
 
-## Query 7 — Payment Captured but Not Shipped
+## Query 8 — Payment Captured but Not Shipped
 
 ```sql
-SELECT
-    OH.ORDER_ID,
-    OH.STATUS_ID AS ORDER_STATUS,
-    OPP.STATUS_ID AS PAYMENT_STATUS,
-    "NO_SHIPMENT_YET" AS SHIPMENT_STATUS
-FROM ORDER_PAYMENT_PREFERENCE OPP
-LEFT JOIN ORDER_HEADER OH ON OH.ORDER_ID = OPP.ORDER_ID
-LEFT JOIN SHIPMENT S ON S.PRIMARY_ORDER_ID = OPP.ORDER_ID
-WHERE OPP.STATUS_ID = "PAYMENT_SETTLED"
-  AND S.SHIPMENT_ID IS NULL;
+SELECT DISTINCT
+    oh.order_id,
+    oh.status_id AS order_status,
+    opp.status_id AS payment_status,
+    s.status_id AS shipment_status
+FROM order_header oh
+
+JOIN order_payment_preference opp
+    ON oh.order_id = opp.order_id
+
+LEFT JOIN order_item_ship_group oisg
+    ON oh.order_id = oisg.order_id
+
+LEFT JOIN shipment s
+    ON oisg.ship_group_seq_id = s.primary_ship_group_seq_id
+   AND oisg.order_id = s.primary_order_id
+
+WHERE opp.status_id IN (
+        'PAYMENT_RECEIVED',
+        'PAYMENT_SETTLED',
+        'PAYMENT_CAPTURED'
+      )
+  AND (
+        s.shipment_id IS NULL
+        OR s.status_id <> 'SHIPMENT_SHIPPED'
+      );
 ```
 
 ---
 
-## Query 8 — Orders Completed Hourly
+## Query 9 — Orders Completed Hourly
 
 ```sql
 SELECT
-    HOUR(ENTRY_DATE) AS hour,
-    COUNT(ORDER_ID) AS total_orders
-FROM ORDER_HEADER
-WHERE STATUS_ID = 'ORDER_COMPLETED'
-  AND ENTRY_DATE BETWEEN DATE_SUB(NOW(), INTERVAL 1 MONTH) AND NOW()
-GROUP BY HOUR(ENTRY_DATE)
+    EXTRACT(HOUR FROM status_datetime) AS hour,
+    COUNT(*)
+FROM order_status
+WHERE status_id = 'ORDER_COMPLETED'
+GROUP BY EXTRACT(HOUR FROM status_datetime)
 ORDER BY hour;
 ```
 
 ---
 
-## Query 9 — BOPIS Orders Revenue (Last Year)
-
-```sql
-SELECT 
-COUNT(OA.ORDER_ID)  ORDER_COUNT ,
-SUM(IFNULL(OH.GRAND_TOTAL, 0) - IFNULL(OA.OTHER_CHARGES, 0)) AS REVENUE 
-FROM ORDER_HEADER OH
-JOIN 
-(SELECT  
-AD.ORDER_ID , 
-SUM(IFNULL(AD.AMOUNT , 0))OTHER_CHARGES 
-FROM ORDER_HEADER OH
-JOIN ORDER_ITEM_SHIP_GROUP OISG
-ON OISG.ORDER_ID = OH.ORDER_ID AND SHIPMENT_METHOD_TYPE_ID = "STOREPICKUP"
-LEFT JOIN ORDER_ADJUSTMENT AD
-ON AD.ORDER_ID = OH.ORDER_ID 
-GROUP BY ORDER_ID ) OA
-ON OA.ORDER_ID = OH.ORDER_ID
-JOIN ORDER_STATUS OS
-    ON OS.ORDER_ID = OH.ORDER_ID 
-    WHERE 
-    OS.STATUS_ID = 'ITEM_COMPLETED' 
-    AND OS.STATUS_DATETIME >= '2025-01-01' 
-    AND OS.STATUS_DATETIME <= '2026-06-01';
-```
-
----
-
-## Query 10 — Canceled Orders (Last Month)
+## Query 10 — BOPIS Orders Revenue (Last Year)
 
 ```sql
 SELECT
-    COUNT(IFNULL(ORDER_ID, 0)) AS ORDER_ITEM_CANCEL,
-    CHANGE_REASON
-FROM ORDER_STATUS
-WHERE STATUS_ID = "ITEM_CANCELLED"
-    AND STATUS_DATETIME >= '2026-05-01' 
-    AND STATUS_DATETIME <= '2026-06-01'
-GROUP BY Change_Reason;
+    COUNT(DISTINCT oh.order_id) AS total_orders,
+    SUM(oh.grand_total) AS total_revenue
+FROM order_header oh
+JOIN order_item_ship_group oisg
+    ON oh.order_id = oisg.order_id
+JOIN shipment s
+    ON s.primary_order_id = oh.order_id
+WHERE oisg.shipment_method_type_id = 'STOREPICKUP'
+  AND s.status_id = 'SHIPMENT_SHIPPED'
+  AND s.estimated_ship_date >= '2025-01-01'
+  AND s.estimated_ship_date < '2026-01-01';
 ```
 
 ---
 
-## Query 11 — Product Threshold Value
+## Query 11 — Canceled Orders (Last Month)
+
+```sql
+SELECT
+    COUNT(order_id) AS cancelled_orders_count,
+    change_reason
+FROM order_status
+WHERE status_id = 'ITEM_CANCELLED'
+  AND status_datetime BETWEEN '2026-05-01' AND '2026-06-01'
+GROUP BY change_reason;
+```
+
+---
+
+## Query 12 — Product Threshold Value
 
 ```sql
 SELECT
     product_id,
-    SUM(IFNULL(minimum_stock, 0)) AS total_minimum_stock
+    SUM(minimum_stock) AS total_minimum_stock
 FROM product_facility
 GROUP BY product_id;
 ```
 
 ---
 
-## Query 12 — Shipping Addresses for October 2023 Orders
+## Query 13 — Shipping Addresses for October 2023 Orders
 
 ```sql
 SELECT
-    OH.ORDER_ID,
-    P.PARTY_ID,
-    P.FIRST_NAME,
-    P.LAST_NAME,
-    PA.ADDRESS1,
-    PA.CITY,
-    PA.STATE_PROVINCE_GEO_ID,
-    PA.COUNTRY_GEO_ID,
-    OH.STATUS_ID,
-    OH.ORDER_DATE
-FROM ORDER_HEADER OH
-LEFT JOIN ORDER_ROLE ORR
-    ON OH.ORDER_ID = ORR.ORDER_ID
-    AND ORR.ROLE_TYPE_ID = 'SHIP_TO_CUSTOMER'
-LEFT JOIN ORDER_CONTACT_MECH OCM
-    ON OH.ORDER_ID = OCM.ORDER_ID
-    AND OCM.CONTACT_MECH_PURPOSE_TYPE_ID = 'SHIPPING_LOCATION'
-LEFT JOIN POSTAL_ADDRESS PA ON PA.CONTACT_MECH_ID = OCM.CONTACT_MECH_ID
-LEFT JOIN PERSON P ON P.PARTY_ID = ORR.PARTY_ID
-WHERE (
-    OH.ORDER_DATE >= '2023-10-01'
-    AND OH.ORDER_DATE < '2023-11-01'
-)
-OR (
-    OH.STATUS_ID = 'ORDER_COMPLETED'
-    AND OH.LAST_UPDATED_STAMP >= '2023-10-01'
-    AND OH.LAST_UPDATED_STAMP < '2023-11-01'
-);
+    oh.order_id,
+    p.party_id,
+    p.first_name,
+    p.last_name,
+    pa.address1,
+    pa.city,
+    pa.state_province_geo_id,
+    pa.country_geo_id,
+    oh.status_id,
+    oh.order_date
+FROM order_header oh
+LEFT JOIN order_role orr
+    ON oh.order_id = orr.order_id
+    AND orr.role_type_id = 'SHIP_TO_CUSTOMER'
+LEFT JOIN order_contact_mech ocm
+    ON oh.order_id = ocm.order_id
+    AND ocm.contact_mech_purpose_type_id = 'SHIPPING_LOCATION'
+LEFT JOIN postal_address pa ON pa.contact_mech_id = ocm.contact_mech_id
+LEFT JOIN person p ON p.party_id = orr.party_id
+WHERE (oh.order_date >= '2023-10-01' AND oh.order_date < '2023-11-01')
+   OR (oh.status_id = 'ORDER_COMPLETED' AND oh.last_updated_stamp >= '2023-10-01' AND oh.last_updated_stamp < '2023-11-01');
 ```
 
 ---
 
-## Query 13 — Orders from New York
+## Query 14 — Orders from New York
 
 ```sql
 SELECT
-    OH.ORDER_ID,
-    P.FIRST_NAME,
-    P.LAST_NAME,
-    OH.GRAND_TOTAL,
-    PA.ADDRESS1,
-    PA.CITY,
-    PA.STATE_PROVINCE_GEO_ID,
-    PA.COUNTRY_GEO_ID,
-    OH.STATUS_ID,
-    OH.ORDER_DATE
-FROM ORDER_HEADER OH
-LEFT JOIN ORDER_ROLE ORR
-    ON OH.ORDER_ID = ORR.ORDER_ID
-    AND ORR.ROLE_TYPE_ID = 'SHIP_TO_CUSTOMER'
-LEFT JOIN ORDER_CONTACT_MECH OCM
-    ON OH.ORDER_ID = OCM.ORDER_ID
-    AND OCM.CONTACT_MECH_PURPOSE_TYPE_ID = 'SHIPPING_LOCATION'
-LEFT JOIN POSTAL_ADDRESS PA ON PA.CONTACT_MECH_ID = OCM.CONTACT_MECH_ID
-LEFT JOIN PERSON P ON P.PARTY_ID = ORR.PARTY_ID
-WHERE OH.STATUS_ID = 'ORDER_COMPLETED'
-  AND PA.STATE_PROVINCE_GEO_ID = 'NY';
+    oh.order_id,
+    p.first_name,
+    p.last_name,
+    oh.grand_total,
+    pa.address1,
+    pa.city,
+    pa.state_province_geo_id,
+    pa.country_geo_id,
+    oh.status_id,
+    oh.order_date
+FROM order_header oh
+LEFT JOIN order_role orr
+    ON oh.order_id = orr.order_id
+    AND orr.role_type_id = 'SHIP_TO_CUSTOMER'
+LEFT JOIN order_contact_mech ocm
+    ON oh.order_id = ocm.order_id
+    AND ocm.contact_mech_purpose_type_id = 'SHIPPING_LOCATION'
+LEFT JOIN postal_address pa ON pa.contact_mech_id = ocm.contact_mech_id
+LEFT JOIN person p ON p.party_id = orr.party_id
+WHERE oh.status_id = 'ORDER_COMPLETED'
+  AND pa.state_province_geo_id = 'NY';
 ```
 
 ---
 
-## Query 14 — Top-Selling Product in New York
+## Query 15 — Top-Selling Product in New York
 
 ```sql
-WITH product_sales AS (
-    SELECT
-        OI.PRODUCT_ID,
-        PA.CITY,
-        P.INTERNAL_NAME,
-        PA.STATE_PROVINCE_GEO_ID,
-        SUM(OI.QUANTITY) AS quantity,
-        SUM(OI.QUANTITY * OI.UNIT_PRICE) AS revenue
-    FROM ORDER_HEADER OH
-    LEFT JOIN ORDER_ITEM OI ON OH.ORDER_ID = OI.ORDER_ID
-    LEFT JOIN PRODUCT P ON P.PRODUCT_ID = OI.PRODUCT_ID
-    LEFT JOIN ORDER_ROLE ORR
-        ON OH.ORDER_ID = ORR.ORDER_ID
-        AND ORR.ROLE_TYPE_ID = 'SHIP_TO_CUSTOMER'
-    LEFT JOIN ORDER_CONTACT_MECH OCM
-        ON OH.ORDER_ID = OCM.ORDER_ID
-        AND OCM.CONTACT_MECH_PURPOSE_TYPE_ID = 'SHIPPING_LOCATION'
-    LEFT JOIN POSTAL_ADDRESS PA ON PA.CONTACT_MECH_ID = OCM.CONTACT_MECH_ID
-    WHERE PA.STATE_PROVINCE_GEO_ID = 'NY'
-    GROUP BY OI.PRODUCT_ID, PA.CITY, PA.STATE_PROVINCE_GEO_ID
-)
-SELECT *
+SELECT 
+    sales.product_id,
+    sales.internal_name,
+    sales.city,
+    sales.state_province_geo_id,
+    sales.quantity,
+    sales.revenue
 FROM (
-    SELECT *,
-           ROW_NUMBER() OVER (
-               PARTITION BY CITY
-               ORDER BY quantity DESC
-           ) AS rn
-    FROM product_sales
-) t
-WHERE rn = 1;
+    SELECT
+        oi.product_id,
+        p.internal_name,
+        pa.city,
+        pa.state_province_geo_id,
+        SUM(oi.quantity) AS quantity,
+        SUM(oi.quantity * oi.unit_price) AS revenue
+    FROM order_header oh
+    LEFT JOIN order_item oi ON oh.order_id = oi.order_id
+    LEFT JOIN product p ON p.product_id = oi.product_id
+    LEFT JOIN order_role orr ON oh.order_id = orr.order_id AND orr.role_type_id = 'SHIP_TO_CUSTOMER'
+    LEFT JOIN order_contact_mech ocm ON oh.order_id = ocm.order_id AND ocm.contact_mech_purpose_type_id = 'SHIPPING_LOCATION'
+    LEFT JOIN postal_address pa ON pa.contact_mech_id = ocm.contact_mech_id
+    WHERE pa.state_province_geo_id = 'NY'
+    GROUP BY oi.product_id, p.internal_name, pa.city, pa.state_province_geo_id
+) sales
+JOIN (
+    SELECT city, MAX(quantity) AS max_qty
+    FROM (
+        SELECT
+            pa.city,
+            oi.product_id,
+            SUM(oi.quantity) AS quantity
+        FROM order_header oh
+        LEFT JOIN order_item oi ON oh.order_id = oi.order_id
+        LEFT JOIN order_role orr ON oh.order_id = orr.order_id AND orr.role_type_id = 'SHIP_TO_CUSTOMER'
+        LEFT JOIN order_contact_mech ocm ON oh.order_id = ocm.order_id AND ocm.contact_mech_purpose_type_id = 'SHIPPING_LOCATION'
+        LEFT JOIN postal_address pa ON pa.contact_mech_id = ocm.contact_mech_id
+        WHERE pa.state_province_geo_id = 'NY'
+        GROUP BY oi.product_id, pa.city
+    ) t
+    GROUP BY city
+) max_sales ON sales.city = max_sales.city AND sales.quantity = max_sales.max_qty;
 ```
 
 ---
 
-## Query 15 — Store-Specific (Facility-Wise) Revenue
+## Query 16 — Store-Specific (Facility-Wise) Revenue
 
 ```sql
 SELECT
-    F.FACILITY_ID,
-    F.FACILITY_NAME,
-    COUNT(DISTINCT OI.ORDER_ID) AS TOTAL_ORDERS,
-    SUM(OI.QUANTITY * OI.UNIT_PRICE) AS TOTAL_REVENUE,
-    CONCAT(
-        MIN(DATE(OI.CREATED_STAMP)),
-        ' - ',
-        MAX(DATE(OI.CREATED_STAMP))
-    ) AS DATE_RANGE
-FROM ORDER_ITEM OI
-JOIN PRODUCT_FACILITY PF ON PF.PRODUCT_ID = OI.PRODUCT_ID
-JOIN FACILITY F ON F.FACILITY_ID = PF.FACILITY_ID
-GROUP BY PF.FACILITY_ID;
+    f.facility_id,
+    f.facility_name,
+    COUNT(DISTINCT oi.order_id) AS total_orders,
+    SUM(oi.quantity * oi.unit_price) AS total_revenue,
+    MIN(oi.created_stamp) AS start_date,
+    MAX(oi.created_stamp) AS end_date
+FROM order_item oi
+JOIN product_facility pf ON pf.product_id = oi.product_id
+JOIN facility f ON f.facility_id = pf.facility_id
+GROUP BY f.facility_id, f.facility_name;
 ```
 
 ---
 
-## Query 16 — Lost and Damaged Inventory
+## Query 17 — Lost and Damaged Inventory
 
 ```sql
 SELECT
-    II.PRODUCT_ID,
-    II.FACILITY_ID,
-    SUM(IID.QUANTITY_ON_HAND_DIFF),
-    IID.REASON_ENUM_ID
-FROM INVENTORY_ITEM_DETAIL IID
-LEFT JOIN INVENTORY_ITEM II ON II.INVENTORY_ITEM_ID = IID.INVENTORY_ITEM_ID
-GROUP BY IID.INVENTORY_ITEM_ID, IID.REASON_ENUM_ID
-HAVING IID.Reason_Enum_Id = "VAR_DAMAGED"
-    OR IID.REASON_ENUM_ID = "VAR_LOST";
+    ii.product_id,
+    ii.facility_id,
+    SUM(iid.quantity_on_hand_diff) AS total_diff,
+    iid.reason_enum_id
+FROM inventory_item_detail iid
+LEFT JOIN inventory_item ii ON ii.inventory_item_id = iid.inventory_item_id
+WHERE iid.reason_enum_id IN ('VAR_DAMAGED', 'VAR_LOST')
+GROUP BY ii.product_id, ii.facility_id, iid.reason_enum_id;
 ```
 
 ---
 
-## Query 17 — Low Stock or Out of Stock Items Report
+## Query 18 — Low Stock or Out of Stock Items Report
 
 ```sql
 SELECT
-    PF.PRODUCT_ID,
-    P.PRODUCT_NAME,
-    PF.FACILITY_ID,
-    COALESCE(II.QUANTITY_ON_HAND_TOTAL, 0) AS QOH,
-    COALESCE(II.AVAILABLE_TO_PROMISE, 0) AS ATP,
-    COALESCE(PF.MINIMUM_STOCK, 0) AS REORDER_THRESHOLD,
-    CURRENT_TIMESTAMP AS DATE_CHECKED
-FROM PRODUCT_FACILITY PF
-JOIN PRODUCT P ON PF.PRODUCT_ID = P.PRODUCT_ID
-LEFT JOIN INVENTORY_ITEM II
-    ON II.PRODUCT_ID = PF.PRODUCT_ID
-    AND II.FACILITY_ID = PF.FACILITY_ID
-WHERE COALESCE(II.AVAILABLE_TO_PROMISE, 0) < COALESCE(PF.MINIMUM_STOCK, 0)
-   OR COALESCE(II.AVAILABLE_TO_PROMISE, 0) <= 0;
+    pf.product_id,
+    p.product_name,
+    pf.facility_id,
+    ii.quantity_on_hand_total AS qoh,
+    ii.available_to_promise AS atp,
+    pf.minimum_stock AS reorder_threshold
+FROM product_facility pf
+JOIN product p ON pf.product_id = p.product_id
+LEFT JOIN inventory_item ii
+    ON ii.product_id = pf.product_id
+    AND ii.facility_id = pf.facility_id
+WHERE ii.available_to_promise < pf.minimum_stock
+   OR ii.available_to_promise <= 0;
 ```
 
 ---
 
-## Query 18 — Retrieve the Current Facility (Physical or Virtual) of Open Orders
+## Query 19 — Retrieve the Current Facility (Physical or Virtual) of Open Orders
 
 ```sql
 SELECT DISTINCT
-    F.FACILITY_NAME,
-    F.FACILITY_TYPE_ID,
-    F.FACILITY_ID,
-    OH.STATUS_ID AS ORDER_STATUS,
-    OH.ORDER_ID
-FROM ORDER_ITEM OI
-INNER JOIN ORDER_HEADER OH ON OH.ORDER_ID = OI.ORDER_ID
-LEFT JOIN ORDER_ITEM_SHIP_GROUP OISG
-    ON OISG.ORDER_ID = OI.ORDER_ID
-    AND OISG.SHIP_GROUP_SEQ_ID = OI.SHIP_GROUP_SEQ_ID
-LEFT JOIN FACILITY F ON OISG.FACILITY_ID = F.FACILITY_ID
-WHERE OH.STATUS_ID <> "ORDER_COMPLETED"
-  AND OH.STATUS_ID <> "ORDER_CANCELLED";
+    f.facility_name,
+    f.facility_type_id,
+    f.facility_id,
+    oh.status_id AS order_status,
+    oh.order_id
+FROM order_item oi
+INNER JOIN order_header oh ON oh.order_id = oi.order_id
+LEFT JOIN order_item_ship_group oisg
+    ON oisg.order_id = oi.order_id
+    AND oisg.ship_group_seq_id = oi.ship_group_seq_id
+LEFT JOIN facility f ON oisg.facility_id = f.facility_id
+WHERE oh.status_id NOT IN ('ORDER_COMPLETED', 'ORDER_CANCELLED');
 ```
 
 ---
 
-## Query 19 — Items Where QOH and ATP Differ
+## Query 20 — Items Where QOH and ATP Differ
 
 ```sql
 SELECT
     product_id,
     facility_id,
-    Quantity_on_Hand_Total,
-    Available_to_promise_total,
-    Quantity_on_Hand_Total - Available_to_promise_total AS Difference
-FROM Inventory_Item;
+    quantity_on_hand_total AS qoh,
+    available_to_promise_total AS atp,
+    (quantity_on_hand_total - available_to_promise_total) AS difference
+FROM inventory_item;
 ```
 
 ---
 
-## Query 20 — Order Item Current Status Changed Date-Time
+## Query 21 — Order Item Current Status Changed Date-Time
 
 ```sql
 SELECT
-    OS1.Order_id,
-    OS2.order_item_seq_id,
-    OS2.Status_id,
-    OS2.STATUS_USER_LOGIN,
-    OS2.STATUS_DATETIME
-FROM Order_Status OS1
-JOIN order_status OS2
-    ON OS1.order_id = OS2.order_id
-    AND OS1.order_item_seq_id = OS2.order_item_seq_id
-WHERE OS1.STATUS_ID = "ITEM_APPROVED"
-  AND OS2.STATUS_ID = "ITEM_COMPLETED";
+    os1.order_id,
+    os2.order_item_seq_id,
+    os2.status_id,
+    os2.status_user_login,
+    os2.status_datetime
+FROM order_status os1
+JOIN order_status os2
+    ON os1.order_id = os2.order_id
+    AND os1.order_item_seq_id = os2.order_item_seq_id
+WHERE os1.status_id = 'ITEM_APPROVED'
+  AND os2.status_id = 'ITEM_COMPLETED';
 ```
 
 ---
 
-## Query 21 — Total Orders by Sales Channel
+## Query 22 — Total Orders by Sales Channel
 
 ```sql
 SELECT
-    SUM(COALESCE(OH.grand_total, 0) - COALESCE(Ad.Adjustments, 0)) AS totalRevenue,
-    OH.sales_channel_enum_id,
-    COUNT(OH.order_id) AS totalOrder,
-    CONCAT(MIN(DATE(OH.Entry_date)), '--', MAX(DATE(OH.Entry_date))) AS PERIOD
-FROM ORDER_HEADER OH
+    SUM(oh.grand_total - IFNULL(ad.adjustments, 0)) AS total_revenue,
+    oh.sales_channel_enum_id,
+    COUNT(oh.order_id) AS total_orders,
+    MIN(oh.entry_date) AS start_date,
+    MAX(oh.entry_date) AS end_date
+FROM order_header oh
 LEFT JOIN (
     SELECT
         order_id,
-        SUM(Amount) AS Adjustments
-    FROM ORDER_ADJUSTMENT
-) Ad ON Ad.order_id = OH.order_id
-WHERE OH.status_id = "Order_completed"
-GROUP BY OH.sales_channel_enum_id;
+        SUM(amount) AS adjustments
+    FROM order_adjustment
+    GROUP BY order_id
+) ad ON ad.order_id = oh.order_id
+WHERE oh.status_id = 'ORDER_COMPLETED'
+GROUP BY oh.sales_channel_enum_id;
 ```
 
 ---
 
-## Query 22 — Completed Sales Orders (Physical Items)
+## Query 23 — Completed Sales Orders (Physical Items)
 
 ```sql
 SELECT
-    oi.ORDER_ID,
-    oi.ORDER_ITEM_SEQ_ID,
-    p.PRODUCT_ID,
-    p.PRODUCT_TYPE_ID,
-    oh.SALES_CHANNEL_ENUM_ID,
-    oh.ORDER_DATE,
-    oh.ENTRY_DATE,
-    oh.STATUS_ID,
-    oh.ORDER_TYPE_ID,
-    oh.PRODUCT_STORE_ID,
-    NOW() AS Status_datetime
+    oi.order_id,
+    oi.order_item_seq_id,
+    p.product_id,
+    p.product_type_id,
+    oh.sales_channel_enum_id,
+    oh.order_date,
+    oh.entry_date,
+    oh.status_id,
+    oh.order_type_id,
+    oh.product_store_id
 FROM order_header oh
 JOIN order_item oi ON oh.order_id = oi.order_id
 LEFT JOIN product p ON p.product_id = oi.product_id
-WHERE p.product_type_id IN (
-    SELECT product_type_id
-    FROM product_type
-    WHERE is_physical = "y"
+JOIN product_type pt ON p.product_type_id = pt.product_type_id
+WHERE pt.is_physical = 'Y'
+  AND oi.status_id <> 'ITEM_CANCELLED'
+ORDER BY oi.order_id ASC;
+```
+
+---
+
+## Query 24 — Completed Return Items
+
+```sql
+SELECT
+    p.party_id,
+    ri.order_id,
+    p.first_name,
+    p.last_name
+FROM return_header rh
+JOIN return_item ri ON ri.return_id = rh.return_id
+LEFT JOIN person p ON p.party_id = rh.from_party_id
+WHERE ri.order_id IN (
+    SELECT order_id
+    FROM return_item
+    GROUP BY order_id
+    HAVING COUNT(return_item_id) = 1
 )
-AND oi.status_id <> "item_cancelled"
-ORDER BY order_id ASC;
+  AND rh.return_date BETWEEN '2026-05-01' AND '2026-06-01';
 ```
 
 ---
 
-## Query 23 — Completed Return Items
+## Query 25 — Single-Return Orders (Last Month)
 
 ```sql
 SELECT
     p.party_id,
-    RI.order_id,
-    p.First_name,
+    ri.order_id,
+    p.first_name,
     p.last_name
-FROM Return_Header RH
-JOIN (
-    SELECT
-        Return_id,
-        order_id
+FROM return_header rh
+JOIN return_item ri ON ri.return_id = rh.return_id
+LEFT JOIN person p ON p.party_id = rh.from_party_id
+WHERE ri.order_id IN (
+    SELECT order_id
     FROM return_item
     GROUP BY order_id
-    HAVING COUNT(order_id) = 1
-) RI ON RI.return_id = RH.return_id
-LEFT JOIN Person p ON p.party_id = RH.from_party_id
-WHERE RH.RETURN_DATE >= '2026-05-01' AND RETURN_DATE <= '2026-06-01';
-```
-
----
-
-## Query 24 — Single-Return Orders (Last Month)
-
-```sql
-SELECT
-    p.party_id,
-    RI.order_id,
-    p.First_name,
-    p.last_name
-FROM Return_Header RH
-JOIN (
-    SELECT
-        Return_id,
-        order_id
-    FROM return_item
-    GROUP BY order_id
-    HAVING COUNT(order_id) = 1
-) RI ON RI.return_id = RH.return_id
-LEFT JOIN Person p ON p.party_id = RH.from_party_id;
-```
-
----
-
-## Query 25 — Returns and Appeasements
-
-```sql
-SELECT
-    COUNT(RI.return_id) AS total_return,
-    SUM(
-        CASE
-            WHEN RA.return_adjustment_type_id = 'Appeasement' THEN 1
-            ELSE 0
-        END
-    ) AS appeasement_count
-FROM RETURN_ITEM RI
-JOIN RETURN_ADJUSTMENT RA ON RI.return_id = RA.return_id
-GROUP BY RA.return_adjustment_id;
-```
-
----
-
-## Query 26 — Detailed Return Information
-
-```sql
-SELECT
-    RH.RETURN_ID,
-    OH.ENTRY_DATE,
-    RA.RETURN_ADJUSTMENT_TYPE_ID,
-    RA.AMOUNT,
-    COMMENTS,
-    OH.ORDER_ID,
-    OH.ORDER_DATE,
-    RH.RETURN_DATE,
-    OH.PRODUCT_STORE_ID
-FROM RETURN_HEADER RH
-JOIN RETURN_ITEM RI ON RH.RETURN_ID = RI.RETURN_ID
-LEFT JOIN ORDER_HEADER OH ON RI.ORDER_ID = OH.ORDER_ID
-LEFT JOIN RETURN_ADJUSTMENT RA ON RA.RETURN_ID = RI.RETURN_ID;
-```
-
----
-
-## Query 27 — Orders with Multiple Returns
-
-```sql
-SELECT DISTINCT
-    RI.ORDER_ID,
-    RI.RETURN_ID,
-    RH.RETURN_DATE,
-    RI.RETURN_REASON_ID,
-    RI.RETURN_QUANTITY
-FROM RETURN_ITEM RI
-JOIN (
-    SELECT ORDER_ID
-    FROM RETURN_ITEM
-    GROUP BY ORDER_ID
-    HAVING COUNT(DISTINCT RETURN_ID) >= 2
-) AS FO ON FO.ORDER_ID = RI.ORDER_ID
-LEFT JOIN RETURN_HEADER RH ON RH.RETURN_ID = RI.RETURN_ID;
-```
-
----
-
-## Query 28 — Store with Most One-Day Shipped Orders (Last Month)
-
-```sql
-SELECT
-    OIS.FACILITY_ID,
-    F.FACILITY_NAME,
-    DATE_SUB(NOW(), INTERVAL 1 MONTH) AS REPORTING_PERIOD,
-    COUNT(OI.ORDER_ID) AS TOTAL_ORDER_ITEM
-FROM ORDER_ITEM OI
-JOIN ORDER_ITEM_SHIP_GROUP OIS
-    ON OIS.ORDER_ID = OI.ORDER_ID
-    AND OIS.SHIP_GROUP_SEQ_ID = OI.SHIP_GROUP_SEQ_ID
-LEFT JOIN FACILITY F ON OIS.FACILITY_ID = F.FACILITY_ID
-JOIN ORDER_STATUS OS
-    ON OS.ORDER_ID = OI.ORDER_ID
-    AND OS.STATUS_ID = 'ITEM_COMPLETED'
-WHERE OIS.SHIPMENT_METHOD_TYPE_ID = 'NEXT_DAY'
-  AND F.FACILITY_TYPE_ID NOT IN (
-      SELECT FACILITY_TYPE_ID
-      FROM FACILITY_TYPE
-      WHERE PARENT_TYPE_ID = 'VIRTUAL_FACILITY'
-  )
-  AND OI.STATUS_ID = 'ITEM_COMPLETED'
-  AND OS.STATUS_DATETIME >= DATE_SUB(NOW(), INTERVAL 1 MONTH)
-GROUP BY OIS.FACILITY_ID, F.FACILITY_NAME;
-```
-
----
-
-## Query 29 — List of Warehouse Pickers
-
-```sql
-SELECT
-    P.PARTY_ID,
-    CONCAT(PER.FIRST_NAME, ' ', PER.LAST_NAME) AS NAME,
-    P.STATUS_ID,
-    FP.FACILITY_ID
-FROM PARTY P
-LEFT JOIN PERSON PER ON P.PARTY_ID = PER.PARTY_ID
-JOIN PARTY_ROLE PR
-    ON P.PARTY_ID = PR.PARTY_ID
-    AND PR.ROLE_TYPE_ID = 'WAREHOUSE_PICKER'
-LEFT JOIN FACILITY_PARTY FP
-    ON FP.PARTY_ID = P.PARTY_ID
-    AND FP.ROLE_TYPE_ID = 'WAREHOUSE_PICKER';
-```
-
----
-
-## Query 30 — Total Facilities That Sell the Product
-
-```sql
-SELECT
-    P.PRODUCT_ID,
-    P.INTERNAL_NAME,
-    COALESCE(COUNT(DISTINCT PF.FACILITY_ID), 0) AS FACILITY_COUNT
-FROM PRODUCT P
-JOIN PRODUCT_PRICE PP
-    ON PP.PRODUCT_ID = P.PRODUCT_ID
-    AND PP.PRODUCT_PRICE_TYPE_ID = 'LIST_PRICE'
-LEFT JOIN PRODUCT_FACILITY PF ON PF.PRODUCT_ID = P.PRODUCT_ID
-GROUP BY PF.PRODUCT_ID;
-```
-
----
-
-## Query 31 — Total Items in Various Virtual Facilities
-
-```sql
-SELECT
-    PF.PRODUCT_ID,
-    PF.FACILITY_ID,
-    F.FACILITY_TYPE_ID,
-    II.QUANTITY_ON_HAND_TOTAL AS QOH,
-    II.AVAILABLE_TO_PROMISE_TOTAL AS ATP
-FROM PRODUCT_FACILITY PF
-LEFT JOIN INVENTORY_ITEM II
-    ON II.PRODUCT_ID = PF.PRODUCT_ID
-    AND II.FACILITY_ID = PF.FACILITY_ID
-JOIN FACILITY F ON F.FACILITY_ID = PF.FACILITY_ID
-WHERE F.FACILITY_TYPE_ID NOT IN (
-    SELECT FACILITY_TYPE_ID
-    FROM FACILITY_TYPE
-    WHERE PARENT_TYPE_ID = 'VIRTUAL_FACILITY'
+    HAVING COUNT(return_item_id) = 1
 );
 ```
 
 ---
 
-## Query 32 — Transfer Orders Without Inventory Reservation
+## Query 26 — Returns and Appeasements
 
 ```sql
 SELECT
-    OH.ORDER_ID AS TRANSFER_ORDER_ID,
-    OH.ORIGIN_FACILITY_ID AS FROM_FACILITY_ID,
-    OIS.FACILITY_ID AS TO_FACILITY_ID,
-    OI.PRODUCT_ID,
-    OI.QUANTITY AS REQUESTED_QUANTITY,
-    0 AS RESERVED_QUANTITY,
-    DATE(OH.ORDER_DATE) AS TRANSFER_DATE,
-    OH.STATUS_ID AS STATUS
-FROM ORDER_HEADER OH
-JOIN ORDER_ITEM OI ON OI.ORDER_ID = OH.ORDER_ID
-JOIN ORDER_ITEM_SHIP_GROUP OIS ON OIS.ORDER_ID = OH.ORDER_ID
-LEFT JOIN ORDER_ITEM_SHIP_GRP_INV_RES OTSHIR
-    ON OTSHIR.ORDER_ID = OIS.ORDER_ID
-    AND OTSHIR.SHIP_GROUP_SEQ_ID = OIS.SHIP_GROUP_SEQ_ID
-    AND OTSHIR.ORDER_ITEM_SEQ_ID = OI.ORDER_ITEM_SEQ_ID
-WHERE OH.ORDER_TYPE_ID = 'TRANSFER_ORDER'
-  AND OTSHIR.RESERVED_DATETIME IS NULL
-  AND OH.STATUS_ID = 'ORDER_APPROVED'
-ORDER BY OH.ORDER_ID;
+    COUNT(ri.return_item_id) AS total_returned_items,
+    SUM(CASE WHEN ra.return_adjustment_type_id = 'Appeasement' THEN 1 ELSE 0 END) AS appeasement_count
+FROM return_item ri
+LEFT JOIN return_adjustment ra ON ri.return_id = ra.return_id;
 ```
 
 ---
 
-## Query 33 — Orders Without Picklist
+## Query 27 — Detailed Return Information
+
+```sql
+SELECT
+    rh.return_id,
+    oh.entry_date,
+    ra.return_adjustment_type_id,
+    ra.amount,
+    ra.comments,
+    oh.order_id,
+    oh.order_date,
+    rh.return_date,
+    oh.product_store_id
+FROM return_header rh
+JOIN return_item ri ON rh.return_id = ri.return_id
+LEFT JOIN order_header oh ON ri.order_id = oh.order_id
+LEFT JOIN return_adjustment ra ON ra.return_id = ri.return_id;
+```
+
+---
+
+## Query 28 — Orders with Multiple Returns
 
 ```sql
 SELECT DISTINCT
-    OH.ORDER_ID,
-    DATE(OH.ORDER_DATE) AS ORDER_DATE,
-    OH.STATUS_ID AS ORDER_STATUS,
-    OIS.FACILITY_ID,
-    DATEDIFF(NOW(), OIS.CREATED_STAMP) AS DURATION_IN_DAYS
-FROM ORDER_HEADER OH
-JOIN ORDER_ITEM_SHIP_GROUP OIS ON OH.ORDER_ID = OIS.ORDER_ID
-LEFT JOIN SHIPMENT S ON OIS.ORDER_ID = S.PRIMARY_ORDER_ID
-LEFT JOIN FACILITY F ON F.FACILITY_ID = OIS.FACILITY_ID
-WHERE S.SHIPMENT_ID IS NULL
-  AND OH.STATUS_ID = 'ORDER_APPROVED'
-  AND F.FACILITY_TYPE_ID NOT IN (
-      SELECT FACILITY_TYPE_ID
-      FROM FACILITY_TYPE
-      WHERE PARENT_TYPE_ID = 'VIRTUAL_FACILITY'
+    ri.order_id,
+    ri.return_id,
+    rh.return_date,
+    ri.return_reason_id,
+    ri.return_quantity
+FROM return_item ri
+JOIN (
+    SELECT order_id
+    FROM return_item
+    GROUP BY order_id
+    HAVING COUNT(DISTINCT return_id) >= 2
+) fo ON fo.order_id = ri.order_id
+LEFT JOIN return_header rh ON rh.return_id = ri.return_id;
+```
+
+---
+
+## Query 29 — Store with Most One-Day Shipped Orders (Last Month)
+
+```sql
+SELECT
+    ois.facility_id,
+    f.facility_name,
+    COUNT(oi.order_id) AS total_order_items
+FROM order_item oi
+JOIN order_item_ship_group ois
+    ON ois.order_id = oi.order_id
+    AND ois.ship_group_seq_id = oi.ship_group_seq_id
+LEFT JOIN facility f ON ois.facility_id = f.facility_id
+JOIN order_status os
+    ON os.order_id = oi.order_id
+    AND os.status_id = 'ITEM_COMPLETED'
+WHERE ois.shipment_method_type_id = 'NEXT_DAY'
+  AND f.facility_type_id NOT IN (
+      SELECT facility_type_id
+      FROM facility_type
+      WHERE parent_type_id = 'VIRTUAL_FACILITY'
   )
-ORDER BY DURATION_IN_DAYS DESC;
+  AND oi.status_id = 'ITEM_COMPLETED'
+  AND os.status_datetime >= NOW() - INTERVAL 30 DAY
+GROUP BY ois.facility_id, f.facility_name;
+```
+
+---
+
+## Query 30 — List of Warehouse Pickers
+
+```sql
+SELECT
+    p.party_id,
+    per.first_name,
+    per.last_name,
+    p.status_id,
+    fp.facility_id
+FROM party p
+LEFT JOIN person per ON p.party_id = per.party_id
+JOIN party_role pr
+    ON p.party_id = pr.party_id
+    AND pr.role_type_id = 'WAREHOUSE_PICKER'
+LEFT JOIN facility_party fp
+    ON fp.party_id = p.party_id
+    AND fp.role_type_id = 'WAREHOUSE_PICKER';
+```
+
+---
+
+## Query 31 — Total Facilities That Sell the Product
+
+```sql
+SELECT
+    p.product_id,
+    p.internal_name,
+    COUNT(DISTINCT pf.facility_id) AS facility_count
+FROM product p
+JOIN product_price pp
+    ON pp.product_id = p.product_id
+    AND pp.product_price_type_id = 'LIST_PRICE'
+LEFT JOIN product_facility pf ON pf.product_id = p.product_id
+GROUP BY p.product_id, p.internal_name;
+```
+
+---
+
+## Query 32 — Total Items in Various Virtual Facilities
+
+```sql
+SELECT
+    pf.product_id,
+    pf.facility_id,
+    f.facility_type_id,
+    ii.quantity_on_hand_total AS qoh,
+    ii.available_to_promise_total AS atp
+FROM product_facility pf
+LEFT JOIN inventory_item ii
+    ON ii.product_id = pf.product_id
+    AND ii.facility_id = pf.facility_id
+JOIN facility f ON f.facility_id = pf.facility_id
+WHERE f.facility_type_id NOT IN (
+    SELECT facility_type_id
+    FROM facility_type
+    WHERE parent_type_id = 'VIRTUAL_FACILITY'
+);
+```
+
+---
+
+## Query 33 — Transfer Orders Without Inventory Reservation
+
+```sql
+SELECT
+    oh.order_id AS transfer_order_id,
+    oh.origin_facility_id AS from_facility_id,
+    ois.facility_id AS to_facility_id,
+    oi.product_id,
+    oi.quantity AS requested_quantity,
+    0 AS reserved_quantity,
+    oh.order_date AS transfer_date,
+    oh.status_id AS status
+FROM order_header oh
+JOIN order_item oi ON oi.order_id = oh.order_id
+JOIN order_item_ship_group ois ON ois.order_id = oh.order_id
+LEFT JOIN order_item_ship_grp_inv_res otshir
+    ON otshir.order_id = ois.order_id
+    AND otshir.ship_group_seq_id = ois.ship_group_seq_id
+    AND otshir.order_item_seq_id = oi.order_item_seq_id
+WHERE oh.order_type_id = 'TRANSFER_ORDER'
+  AND otshir.reserved_datetime IS NULL
+  AND oh.status_id = 'ORDER_APPROVED'
+ORDER BY oh.order_id;
+```
+
+---
+
+## Query 34 — Orders Without Picklist
+
+```sql
+SELECT DISTINCT
+    oh.order_id,
+    oh.order_date,
+    oh.status_id AS order_status,
+    ois.facility_id
+FROM order_header oh
+JOIN order_item_ship_group ois ON oh.order_id = ois.order_id
+LEFT JOIN shipment s ON ois.order_id = s.primary_order_id
+LEFT JOIN facility f ON f.facility_id = ois.facility_id
+WHERE s.shipment_id IS NULL
+  AND oh.status_id = 'ORDER_APPROVED'
+  AND f.facility_type_id NOT IN (
+      SELECT facility_type_id
+      FROM facility_type
+      WHERE parent_type_id = 'VIRTUAL_FACILITY'
+  );
 ```
