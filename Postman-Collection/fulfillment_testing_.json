@@ -1,0 +1,372 @@
+{
+	"info": {
+		"_postman_id": "f10cd270-2d52-4010-a29a-c4131358460d",
+		"name": "New Collection",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "55910624",
+		"_collection_link": "https://dushyant-mehta-0f5c60a6-5074329.postman.co/workspace/Dushyant-Mehta's-Workspace~892a9a29-c1bc-4be2-8ea8-5eadac782d97/collection/55910624-f10cd270-2d52-4010-a29a-c4131358460d?action=share&source=collection_link&creator=55910624"
+	},
+	"item": [
+		{
+			"name": "find open orders",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let response = pm.response.json();",
+							"",
+							"let groups =",
+							"response.grouped.orderItemShipGroupIdentifier.groups;",
+							"",
+							"let shipmentGroups = [];",
+							"",
+							"groups.forEach(group => {",
+							"",
+							"    let docs = group.doclist.docs;",
+							"",
+							"    let orderItems = [];",
+							"",
+							"    docs.forEach(doc => {",
+							"",
+							"        orderItems.push({",
+							"            orderId: doc.orderId,",
+							"            orderItemSeqId: doc.orderItemSeqId,",
+							"            shipGroupSeqId: doc.shipGroupSeqId,",
+							"            productId: doc.productId,",
+							"            quantity: doc.quantity",
+							"        });",
+							"",
+							"    });",
+							"",
+							"    shipmentGroups.push({",
+							"        orderId: docs[0].orderId,",
+							"        shipGroupSeqId: docs[0].shipGroupSeqId,",
+							"        orderItems: orderItems",
+							"    });",
+							"",
+							"});",
+							"",
+							"pm.environment.set(",
+							"    \"shipmentGroups\",",
+							"    JSON.stringify(shipmentGroups)",
+							");",
+							"",
+							"pm.environment.set(",
+							"    \"groupIndex\",",
+							"    0",
+							");",
+							"",
+							"console.log(",
+							"    \"Groups Found:\",",
+							"    shipmentGroups.length",
+							");"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJ1c2VyTG9naW5JZCI6ImR1c2h5YW50Lm1laHRhIiwiaXNzIjoibmV4dGdlbi1vbXMiLCJleHAiOjE3ODE3NTcyNTAsImlhdCI6MTc4MTY3MDg1MH0.2OdkTMarqU3XurU800FJ0SkqFMG95yQdYllgktJ5O8yO4C3A_IHL9R9eUyzvjKq8tdEaJ3VJ2ZNzjJu7B2ub2w",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"json\": {\n        \"params\": {\n            \"rows\": \"10\",\n            \"sort\": \"orderDate asc\",\n            \"q.op\": \"AND\",\n            \"start\": 0,\n            \"group\": true,\n            \"group.field\": \"orderItemShipGroupIdentifier\",\n            \"group.limit\": 1000,\n            \"group.ngroups\": true\n        },\n        \"query\": \"(*:*)\",\n        \"filter\": \"docType: ORDER AND -shipmentMethodTypeId: (STOREPICKUP OR POS_COMPLETED) AND orderStatusId: ORDER_APPROVED AND orderTypeId: SALES_ORDER AND productStoreId: STORE AND facilityId: MAPLEWOOD AND ((*:* -fulfillmentStatus: [* TO *]) OR fulfillmentStatus:Created) AND entryDate:[2025-01-01T00:00:00Z TO *]\"\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseSolrUrl}}",
+					"host": [
+						"{{baseSolrUrl}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Pick Order",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"let groups =",
+							"JSON.parse(",
+							"    pm.environment.get(\"shipmentGroups\")",
+							");",
+							"",
+							"let index =",
+							"parseInt(",
+							"    pm.environment.get(\"groupIndex\")",
+							");",
+							"",
+							"let currentGroup =",
+							"groups[index];",
+							"",
+							"pm.environment.set(",
+							"    \"orderId\",",
+							"    currentGroup.orderId",
+							");",
+							"",
+							"pm.environment.set(",
+							"    \"shipGroupSeqId\",",
+							"    currentGroup.shipGroupSeqId",
+							");",
+							"",
+							"pm.environment.set(",
+							"    \"currentOrderItems\",",
+							"    JSON.stringify(",
+							"        currentGroup.orderItems",
+							"    )",
+							");"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let response =",
+							"pm.response.json();",
+							"",
+							"pm.environment.set(",
+							"    \"picklistId\",",
+							"    response.picklistId",
+							");",
+							"",
+							"pm.environment.set(",
+							"    \"shipmentId\",",
+							"    response.shipmentIds[0]",
+							");",
+							"",
+							"console.log(",
+							"    \"Shipment Created:\",",
+							"    response.shipmentIds[0]",
+							");"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJ1c2VyTG9naW5JZCI6ImR1c2h5YW50Lm1laHRhIiwiaXNzIjoibmV4dGdlbi1vbXMiLCJleHAiOjE3ODE3NTcyNTAsImlhdCI6MTc4MTY3MDg1MH0.2OdkTMarqU3XurU800FJ0SkqFMG95yQdYllgktJ5O8yO4C3A_IHL9R9eUyzvjKq8tdEaJ3VJ2ZNzjJu7B2ub2w",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"packageName\": \"A\",\n  \"facilityId\": \"{{facilityId}}\",\n  \"shipmentMethodTypeId\": \"STANDARD\",\n  \"statusId\": \"PICKLIST_ASSIGNED\",\n  \"pickers\": [\n    {\n      \"partyId\": \"{{pickerPartyId}}\",\n      \"roleTypeId\": \"WAREHOUSE_PICKER\"\n    }\n  ],\n  \"orderItems\": {{currentOrderItems}}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{basePoortiUrl}}/createOrderFulfillmentWave",
+					"host": [
+						"{{basePoortiUrl}}"
+					],
+					"path": [
+						"createOrderFulfillmentWave"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Pack Order",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let response =",
+							"pm.response.json();",
+							"",
+							"pm.environment.set(",
+							"    \"packedShipmentId\",",
+							"    response.packedShipmentId",
+							");"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJ1c2VyTG9naW5JZCI6ImR1c2h5YW50Lm1laHRhIiwiaXNzIjoibmV4dGdlbi1vbXMiLCJleHAiOjE3ODE3NTcyNTAsImlhdCI6MTc4MTY3MDg1MH0.2OdkTMarqU3XurU800FJ0SkqFMG95yQdYllgktJ5O8yO4C3A_IHL9R9eUyzvjKq8tdEaJ3VJ2ZNzjJu7B2ub2w",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"shipmentId\": \"{{shipmentId}}\",\n  \"orderId\": \"{{orderId}}\",\n  \"facilityId\": \"{{facilityId}}\",\n  \"rejectedOrderItems\": [],\n  \"shipmentPackageContents\": []\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{basePoortiUrl}}/shipments/{{shipmentId}}/pack",
+					"host": [
+						"{{basePoortiUrl}}"
+					],
+					"path": [
+						"shipments",
+						"{{shipmentId}}",
+						"pack"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Ship Order",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let groups =",
+							"JSON.parse(",
+							"    pm.environment.get(\"shipmentGroups\")",
+							");",
+							"",
+							"let index =",
+							"parseInt(",
+							"    pm.environment.get(\"groupIndex\")",
+							");",
+							"",
+							"index++;",
+							"",
+							"pm.environment.set(",
+							"    \"groupIndex\",",
+							"    index",
+							");",
+							"",
+							"if(index < groups.length){",
+							"",
+							"    postman.setNextRequest(",
+							"        \"Create Fulfillment Wave\"",
+							"    );",
+							"",
+							"}",
+							"else{",
+							"",
+							"    console.log(",
+							"        \"All Fulfillment Completed\"",
+							"    );",
+							"",
+							"    postman.setNextRequest(",
+							"        null",
+							"    );",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJ1c2VyTG9naW5JZCI6ImR1c2h5YW50Lm1laHRhIiwiaXNzIjoibmV4dGdlbi1vbXMiLCJleHAiOjE3ODE3NTcyNTAsImlhdCI6MTc4MTY3MDg1MH0.2OdkTMarqU3XurU800FJ0SkqFMG95yQdYllgktJ5O8yO4C3A_IHL9R9eUyzvjKq8tdEaJ3VJ2ZNzjJu7B2ub2w",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"shipmentId\": \"{{shipmentId}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{basePoortiUrl}}/shipments/{{shipmentId}}/ship",
+					"host": [
+						"{{basePoortiUrl}}"
+					],
+					"path": [
+						"shipments",
+						"{{shipmentId}}",
+						"ship"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
