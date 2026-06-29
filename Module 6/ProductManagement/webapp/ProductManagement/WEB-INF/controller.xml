@@ -4,7 +4,7 @@
         xsi:schemaLocation="http://ofbiz.apache.org/Site-Conf http://ofbiz.apache.org/dtds/site-conf.xsd">
 
     <include location="component://common/webcommon/WEB-INF/common-controller.xml"/>
-    <description>ProductFinder Component Controller</description>
+    <description>ProductManagement Component Controller</description>
 
     <!-- ==================== Request Mappings ==================== -->
 
@@ -53,8 +53,8 @@
 
     <!-- ==================== View Mappings ==================== -->
 
-    <view-map name="main"          type="screen" page="component://ProductFinder/widget/ProductMgmtScreens.xml#main"/>
-    <view-map name="findProduct"   type="ftl"    page="component://ProductFinder/webapp/ProductFinder/template/findProduct.ftl"/>
-    <view-map name="createProduct" type="screen" page="component://ProductFinder/widget/ProductMgmtScreens.xml#createProduct"/>
+    <view-map name="main"          type="screen" page="component://ProductManagement/widget/ProductMgmtScreens.xml#main"/>
+    <view-map name="findProduct"   type="ftl"    page="component://ProductManagement/webapp/ProductManagement/template/findProduct.ftl"/>
+    <view-map name="createProduct" type="screen" page="component://ProductManagement/widget/ProductMgmtScreens.xml#createProduct"/>
 
 </site-conf>

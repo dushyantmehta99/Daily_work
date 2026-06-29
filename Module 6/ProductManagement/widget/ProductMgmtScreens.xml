@@ -11,7 +11,7 @@
             <widgets>
                 <label text="Welcome to Product Management. Use the Find Product screen to search for products."/>
                 <platform-specific>
-                    <html><html-template location="component://ProductFinder/webapp/ProductFinder/template/findProduct.ftl"/></html>
+                    <html><html-template location="component://ProductManagement/webapp/ProductManagement/template/findProduct.ftl"/></html>
                 </platform-specific>
             </widgets>
         </section>
@@ -23,7 +23,7 @@
                 <set field="title" value="Create Product"/>
             </actions>
             <widgets>
-                <include-form name="CreateProductForm" location="component://ProductFinder/widget/ProductMgmtForms.xml"/>
+                <include-form name="CreateProductForm" location="component://ProductManagement/widget/ProductMgmtForms.xml"/>
             </widgets>
         </section>
     </screen>

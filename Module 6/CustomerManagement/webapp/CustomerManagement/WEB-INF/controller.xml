@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site-conf xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://ofbiz.apache.org/dtds/site-conf.xsd">
+
+    <description>Customer Management Controller</description>
+    <owner>Apache OFBiz</owner>
+
+    <errorpage>/error/error.jsp</errorpage>
+
+    <firstvisit>
+        <event type="java" path="org.apache.ofbiz.webapp.control.LoginWorker" invoke="autoLoginCheck"/>
+    </firstvisit>
+
+    <preprocessor>
+        <event type="java" path="org.apache.ofbiz.webapp.control.LoginWorker" invoke="checkLogin"/>
+    </preprocessor>
+
+    <!-- ===== View Maps ===== -->
+    <view-map name="main"         type="ftl" page="component://CustomerManagement/webapp/CustomerManagement/template/findCustomer.ftl"/>
+    <view-map name="findCustomer" type="ftl" page="component://CustomerManagement/webapp/CustomerManagement/template/findCustomer.ftl"/>
+
+    <!-- ===== Request Maps ===== -->
+
+    <request-map uri="main">
+        <security https="true" auth="true"/>
+        <response name="success" type="view" value="main"/>
+    </request-map>
+
+    <!-- Triggered when user submits the search form -->
+    <request-map uri="findCustomer">
+        <security https="true" auth="true"/>
+        <event type="service" invoke="findCustomer"/>
+        <response name="success" type="view" value="findCustomer"/>
+        <response name="error"   type="view" value="findCustomer"/>
+    </request-map>
+
+    <!-- Triggered when user submits the Add New Customer form -->
+    <request-map uri="createCustomer">
+        <security https="true" auth="true"/>
+        <event type="service" invoke="createCustomer"/>
+        <response name="success" type="view" value="findCustomer"/>
+        <response name="error"   type="view" value="findCustomer"/>
+    </request-map>
+
+    <!-- Triggered when user submits the inline Update form in the results table -->
+    <request-map uri="updateCustomer">
+        <security https="true" auth="true"/>
+        <event type="service" invoke="updateCustomer"/>
+        <response name="success" type="view" value="findCustomer"/>
+        <response name="error"   type="view" value="findCustomer"/>
+    </request-map>
+
+    <!-- Triggered when user creates a party-to-party relationship -->
+    <request-map uri="createCustomerRelationship">
+        <security https="true" auth="true"/>
+        <event type="service" invoke="createCustomerRelationship"/>
+        <response name="success" type="view" value="findCustomer"/>
+        <response name="error"   type="view" value="findCustomer"/>
+    </request-map>
+
+    <!-- Triggered when user updates an existing party relationship -->
+    <request-map uri="updateCustomerRelationship">
+        <security https="true" auth="true"/>
+        <event type="service" invoke="updateCustomerRelationship"/>
+        <response name="success" type="view" value="findCustomer"/>
+        <response name="error"   type="view" value="findCustomer"/>
+    </request-map>
+
+</site-conf>

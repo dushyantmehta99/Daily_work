@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<entity-engine-xml>
-    <!-- Security permission for ProductFinder component -->
-    <SecurityPermission description="View and manage products in ProductFinder"
-        permissionId="PRODUCTFINDER_VIEW"/>
-    <SecurityPermission description="Create and update products in ProductFinder"
-        permissionId="PRODUCTFINDER_ADMIN"/>
-</entity-engine-xml>

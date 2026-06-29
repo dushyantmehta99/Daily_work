@@ -1,0 +1,7 @@
+apply plugin: 'groovy'
+
+dependencies {
+    implementation project(':framework:service')
+    implementation project(':framework:entity')
+    implementation project(':framework:base')
+}

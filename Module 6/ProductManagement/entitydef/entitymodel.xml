@@ -2,7 +2,7 @@
 <entitymodel xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="https://ofbiz.apache.org/dtds/entitymodel.xsd">
 
-    <title>ProductFinder Entity Model</title>
+    <title>ProductManagement Entity Model</title>
     <description>View entity for dynamic product finder. Core entities (Product, ProductPrice,
         ProductCategory, ProductFeature) are defined in applications/product.</description>
 

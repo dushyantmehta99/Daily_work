@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<services xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://ofbiz.apache.org/dtds/services.xsd">
+
+    <description>Customer Management Services</description>
+    <vendor>Apache OFBiz</vendor>
+    <version>1.0</version>
+
+    <!-- ===== Find Customer ===== -->
+    <service name="findCustomer" engine="groovy"
+            location="component://CustomerManagement/src/main/groovy/org/apache/ofbiz/customermgmt/CustomerServices.groovy"
+            invoke="findCustomer" auth="true">
+        <description>Search customers; supports partial case-insensitive matching on all fields</description>
+        <attribute name="partyId"       mode="IN" type="String" optional="true"/>
+        <attribute name="firstName"     mode="IN" type="String" optional="true"/>
+        <attribute name="lastName"      mode="IN" type="String" optional="true"/>
+        <attribute name="emailAddress"  mode="IN" type="String" optional="true"/>
+        <attribute name="contactNumber" mode="IN" type="String" optional="true"/>
+        <attribute name="address1"      mode="IN" type="String" optional="true"/>
+        <attribute name="customerList"  mode="OUT" type="List"  optional="false"/>
+    </service>
+
+    <!-- ===== Create Customer ===== -->
+    <service name="createCustomer" engine="groovy"
+            location="component://CustomerManagement/src/main/groovy/org/apache/ofbiz/customermgmt/CustomerServices.groovy"
+            invoke="createCustomer" auth="true">
+        <description>Create Party + Person + email ContactMech; email is the unique identifier</description>
+        <attribute name="emailAddress"   mode="IN" type="String" optional="false"/>
+        <attribute name="firstName"      mode="IN" type="String" optional="false"/>
+        <attribute name="lastName"       mode="IN" type="String" optional="false"/>
+        <attribute name="contactNumber"  mode="IN" type="String" optional="true"/>
+        <attribute name="address1"       mode="IN" type="String" optional="true"/>
+        <attribute name="city"           mode="IN" type="String" optional="true"/>
+        <attribute name="zipOrPostalCode" mode="IN" type="String" optional="true"/>
+        <attribute name="partyId"        mode="OUT" type="String" optional="false"/>
+    </service>
+
+    <!-- ===== Update Customer ===== -->
+    <service name="updateCustomer" engine="groovy"
+            location="component://CustomerManagement/src/main/groovy/org/apache/ofbiz/customermgmt/CustomerServices.groovy"
+            invoke="updateCustomer" auth="true">
+        <description>Update postal address and/or phone for customer identified by email</description>
+        <attribute name="emailAddress"    mode="IN" type="String" optional="false"/>
+        <attribute name="contactNumber"   mode="IN" type="String" optional="true"/>
+        <attribute name="address1"        mode="IN" type="String" optional="true"/>
+        <attribute name="city"            mode="IN" type="String" optional="true"/>
+        <attribute name="zipOrPostalCode" mode="IN" type="String" optional="true"/>
+    </service>
+
+    <!-- ===== Create Customer Relationship ===== -->
+    <service name="createCustomerRelationship" engine="groovy"
+            location="component://CustomerManagement/src/main/groovy/org/apache/ofbiz/customermgmt/CustomerServices.groovy"
+            invoke="createCustomerRelationship" auth="true">
+        <description>Create a PartyRelationship between two parties</description>
+        <attribute name="partyIdFrom"             mode="IN" type="String" optional="false"/>
+        <attribute name="partyIdTo"               mode="IN" type="String" optional="false"/>
+        <attribute name="partyRelationshipTypeId" mode="IN" type="String" optional="false"/>
+    </service>
+
+    <!-- ===== Update Customer Relationship ===== -->
+    <service name="updateCustomerRelationship" engine="groovy"
+            location="component://CustomerManagement/src/main/groovy/org/apache/ofbiz/customermgmt/CustomerServices.groovy"
+            invoke="updateCustomerRelationship" auth="true">
+        <description>Update the status of an existing active party relationship</description>
+        <attribute name="partyIdFrom"             mode="IN" type="String" optional="false"/>
+        <attribute name="partyIdTo"               mode="IN" type="String" optional="false"/>
+        <attribute name="partyRelationshipTypeId" mode="IN" type="String" optional="false"/>
+        <attribute name="statusId"                mode="IN" type="String" optional="true"/>
+    </service>
+
+</services>
