@@ -1,33 +1,4 @@
-# Party Component — Moqui Framework
-
-A custom Moqui component implementing Party data management with entities, screens, forms, services, and REST API.
-
----
-
-## Setup Process
-
-### Prerequisites
-
-- Java 21
-- Moqui Framework 4.x
-- MySQL 8.x
-- MySQL Connector/J 8.x JAR placed in `runtime/lib/`
-
----
-
-### Step 1 — Place the Component
-
-Copy the `party` folder into:
-
-```
-moqui-framework/runtime/component/party/
-```
-
-Moqui auto-discovers components from the `runtime/component/` directory.
-
----
-
-### Step 2 — Configure MySQL Database
+### Step 1 — Configure MySQL Database
 
 Create the database in MySQL:
 
