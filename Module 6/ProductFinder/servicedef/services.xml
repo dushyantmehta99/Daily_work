@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<services xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://ofbiz.apache.org/dtds/services.xsd">
+    <description>ProductFinder Services</description>
+    <version>1.0</version>
+
+    <!-- Step 4: findProduct -->
+    <service name="findProduct" engine="groovy" auth="true"
+             location="component://ProductFinder/src/main/groovy/org/apache/ofbiz/productmgmt/ProductServices.groovy"
+             invoke="findProduct">
+        <description>Find products by ID, name, price range, and/or feature</description>
+        <attribute name="productId"          type="String"     mode="IN" optional="true"/>
+        <attribute name="productName"        type="String"     mode="IN" optional="true"/>
+        <attribute name="minPrice"           type="BigDecimal" mode="IN" optional="true"/>
+        <attribute name="maxPrice"           type="BigDecimal" mode="IN" optional="true"/>
+        <attribute name="productFeatureTypeId" type="String"   mode="IN" optional="true"/>
+        <attribute name="featureDescription" type="String"     mode="IN" optional="true"/>
+        <attribute name="productList"        type="List"       mode="OUT" optional="false"/>
+    </service>
+
+    <!-- Step 5: createProduct -->
+    <service name="createProduct" engine="groovy" auth="true"
+             location="component://ProductFinder/src/main/groovy/org/apache/ofbiz/productmgmt/ProductServices.groovy"
+             invoke="createProduct">
+        <description>Create a new product; fails if product with same name already exists</description>
+        <attribute name="productName"     type="String"     mode="IN" optional="false"/>
+        <attribute name="productCategoryId" type="String"   mode="IN" optional="false"/>
+        <attribute name="price"           type="BigDecimal" mode="IN" optional="false"/>
+        <attribute name="currencyUomId"   type="String"     mode="IN" optional="true" default-value="USD"/>
+        <attribute name="productTypeId"   type="String"     mode="IN" optional="true" default-value="FINISHED_GOOD"/>
+        <attribute name="productId"       type="String"     mode="OUT" optional="false"/>
+    </service>
+
+    <!-- Step 5: updateProduct -->
+    <service name="updateProduct" engine="groovy" auth="true"
+             location="component://ProductFinder/src/main/groovy/org/apache/ofbiz/productmgmt/ProductServices.groovy"
+             invoke="updateProduct">
+        <description>Update price and/or features of an existing product</description>
+        <attribute name="productId"          type="String"     mode="IN" optional="false"/>
+        <attribute name="price"              type="BigDecimal" mode="IN" optional="true"/>
+        <attribute name="currencyUomId"      type="String"     mode="IN" optional="true" default-value="USD"/>
+        <attribute name="productFeatureId"   type="String"     mode="IN" optional="true"/>
+    </service>
+
+    <!-- Step 6: assocProductToVirtual -->
+    <service name="assocProductToVirtual" engine="groovy" auth="true"
+             location="component://ProductFinder/src/main/groovy/org/apache/ofbiz/productmgmt/ProductServices.groovy"
+             invoke="assocProductToVirtual">
+        <description>Associate a variant product to a virtual product</description>
+        <attribute name="productId"        type="String" mode="IN" optional="false"/>
+        <attribute name="virtualProductId" type="String" mode="IN" optional="false"/>
+    </service>
+
+    <!-- Step 6: updateProductVariant -->
+    <service name="updateProductVariant" engine="groovy" auth="true"
+             location="component://ProductFinder/src/main/groovy/org/apache/ofbiz/productmgmt/ProductServices.groovy"
+             invoke="updateProductVariant">
+        <description>Update an existing virtual-variant relationship between products</description>
+        <attribute name="productId"           type="String" mode="IN" optional="false"/>
+        <attribute name="virtualProductId"    type="String" mode="IN" optional="false"/>
+        <attribute name="newVirtualProductId" type="String" mode="IN" optional="false"/>
+    </service>
+
+</services>

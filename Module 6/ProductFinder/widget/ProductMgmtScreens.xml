@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screens xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://ofbiz.apache.org/Widget-Screen"
+        xsi:schemaLocation="http://ofbiz.apache.org/Widget-Screen http://ofbiz.apache.org/dtds/widget-screen.xsd">
+
+    <screen name="main">
+        <section>
+            <actions>
+                <set field="title" value="Product Management"/>
+            </actions>
+            <widgets>
+                <label text="Welcome to Product Management. Use the Find Product screen to search for products."/>
+                <platform-specific>
+                    <html><html-template location="component://ProductFinder/webapp/ProductFinder/template/findProduct.ftl"/></html>
+                </platform-specific>
+            </widgets>
+        </section>
+    </screen>
+
+    <screen name="createProduct">
+        <section>
+            <actions>
+                <set field="title" value="Create Product"/>
+            </actions>
+            <widgets>
+                <include-form name="CreateProductForm" location="component://ProductFinder/widget/ProductMgmtForms.xml"/>
+            </widgets>
+        </section>
+    </screen>
+
+</screens>

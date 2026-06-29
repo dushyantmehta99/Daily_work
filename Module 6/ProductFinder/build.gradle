@@ -1,0 +1,12 @@
+dependencies {
+}
+
+task install {
+    doLast {
+    }
+}
+
+task uninstall {
+    doLast {
+    }
+}
