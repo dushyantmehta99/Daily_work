@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="http://moqui.org/xsd/service-rest-api-3.xsd"
+          name="Person" require-authentication="false">
+
+    <!--
+        POST /rest/s1/Party/Person/create
+        Body (JSON): { "partyId": "P001", "firstName": "Jane", "lastName": "Smith" }
+    -->
+    <resource name="create">
+        <method type="post">
+            <service name="party.PartyServices.create#Person"/>
+        </method>
+    </resource>
+
+</resource>

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="http://moqui.org/xsd/xml-screen-3.xsd"
+        default-menu-title="Party" require-authentication="false">
+
+    <!-- Transition: create a new Party record -->
+    <transition name="createParty">
+        <service-call name="create#party.Party"/>
+        <default-response url="."/>
+    </transition>
+
+    <actions>
+        <entity-find entity-name="party.Party" list="partyList">
+            <order-by field-name="partyId"/>
+        </entity-find>
+    </actions>
+
+    <widgets>
+
+        <!-- Create Party Dialog -->
+        <container-dialog id="CreatePartyDialog" button-text="Create Party">
+            <form-single name="CreatePartyForm" transition="createParty">
+                <auto-fields-entity entity-name="party.Party" field-type="edit"/>
+                <field name="submitButton">
+                    <default-field title="Create Party">
+                        <submit/>
+                    </default-field>
+                </field>
+            </form-single>
+        </container-dialog>
+
+        <!-- Party List Table -->
+        <form-list name="PartyList" list="partyList">
+            <field name="partyId">
+                <default-field title="Party ID"><display/></default-field>
+            </field>
+            <field name="partyTypeEnumId">
+                <default-field title="Party Type"><display/></default-field>
+            </field>
+            <field name="createdDate">
+                <default-field title="Created Date"><display/></default-field>
+            </field>
+        </form-list>
+
+    </widgets>
+
+</screen>

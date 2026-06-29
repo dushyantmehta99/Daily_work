@@ -1,0 +1,6 @@
+<component name="party" xmlns="http://moqui.org/xsd/component-definition-3.0.xsd">
+    <entity location="entity"/>
+    <service location="service"/>
+    <screen location="screen"/>
+    <data location="data"/>
+</component>

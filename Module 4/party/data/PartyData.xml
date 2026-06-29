@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<entity-facade-xml type="seed">
+
+    <!-- ==================== Enum Types ==================== -->
+
+    <moqui.basic.EnumerationType description="Party Type" enumTypeId="PartyType"/>
+    <moqui.basic.Enumeration description="Person"      enumId="PERSON"      enumTypeId="PartyType"/>
+    <moqui.basic.Enumeration description="Party Group" enumId="PARTY_GROUP" enumTypeId="PartyType"/>
+
+    <moqui.basic.EnumerationType description="Contact Mechanism Type" enumTypeId="ContactMechType"/>
+    <moqui.basic.Enumeration description="Email Address"  enumId="EMAIL"           enumTypeId="ContactMechType"/>
+    <moqui.basic.Enumeration description="Telecom Number" enumId="TELECOM_NUMBER"  enumTypeId="ContactMechType"/>
+    <moqui.basic.Enumeration description="Postal Address" enumId="POSTAL_ADDRESS"  enumTypeId="ContactMechType"/>
+
+    <!-- ==================== Sample Party: Person ==================== -->
+
+    <party.Party partyId="P001" partyTypeEnumId="PERSON" createdDate="2024-01-15 10:00:00"/>
+    <party.Person partyId="P001" firstName="John" lastName="Doe" dateOfBirth="1990-05-15"/>
+
+    <!-- ==================== Sample Party: Group ==================== -->
+
+    <party.Party partyId="P002" partyTypeEnumId="PARTY_GROUP" createdDate="2024-01-15 10:00:00"/>
+    <party.PartyGroup partyId="P002" groupName="Acme Corporation" description="A sample company for testing"/>
+
+    <!-- ==================== Sample ContactMech Records ==================== -->
+
+    <party.ContactMech contactMechId="CM001" contactMechTypeId="EMAIL"
+                       infoString="john.doe@example.com" createdDate="2024-01-15 10:00:00"/>
+    <party.ContactMech contactMechId="CM002" contactMechTypeId="TELECOM_NUMBER"
+                       infoString="+1-555-0100" createdDate="2024-01-15 10:00:00"/>
+
+    <!-- ==================== PartyContactMech Links ==================== -->
+
+    <party.PartyContactMech partyId="P001" contactMechId="CM001" fromDate="2024-01-15 10:00:00"/>
+    <party.PartyContactMech partyId="P001" contactMechId="CM002" fromDate="2024-01-15 10:00:00"/>
+
+</entity-facade-xml>
