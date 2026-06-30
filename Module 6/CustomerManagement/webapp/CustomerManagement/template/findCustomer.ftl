@@ -45,7 +45,6 @@
     <div class="msg-success">${successMessage}</div>
 </#if>
 
-<!-- ===== Search Form ===== -->
 <div class="card">
     <strong>Search Customers</strong>
     <form method="post" action="<@ofbizUrl>findCustomer</@ofbizUrl>" style="margin-top:12px;">
@@ -82,7 +81,6 @@
     </form>
 </div>
 
-<!-- ===== Create Customer ===== -->
 <div class="card">
     <details>
         <summary>+ Add New Customer</summary>
@@ -125,7 +123,6 @@
     </details>
 </div>
 
-<!-- ===== Results ===== -->
 <#assign pageSize = 10/>
 <#assign page = (parameters.page?has_content)?then(parameters.page?number, 1)/>
 <#assign offset = (page - 1) * pageSize/>

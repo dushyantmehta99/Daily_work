@@ -6,7 +6,6 @@ import org.apache.ofbiz.entity.condition.EntityOperator
 import org.apache.ofbiz.base.util.UtilMisc
 import org.apache.ofbiz.base.util.UtilValidate
 
-// Step 4: Find products with optional filters
 Map findProduct() {
     Map result = success()
     List conditions = []
@@ -38,7 +37,6 @@ Map findProduct() {
     if (UtilValidate.isNotEmpty(featureDescription)) {
         conditions << EntityCondition.makeCondition('featureDescription', EntityOperator.LIKE, '%' + featureDescription + '%')
     }
-    // Always filter to LIST_PRICE only
     conditions << EntityCondition.makeCondition('productPriceTypeId', EntityOperator.EQUALS, 'LIST_PRICE')
 
     EntityCondition condition = conditions.size() > 1
@@ -57,7 +55,6 @@ Map findProduct() {
     return result
 }
 
-// Step 5: Create a product (unique name enforced)
 Map createProduct() {
     Map result = success()
 
@@ -67,7 +64,6 @@ Map createProduct() {
     String currencyUomId = parameters.currencyUomId ?: 'USD'
     String productTypeId = parameters.productTypeId ?: 'FINISHED_GOOD'
 
-    // Check uniqueness
     List existing = from('Product')
         .where(EntityCondition.makeCondition('internalName', EntityOperator.EQUALS, productName))
         .queryList()
@@ -87,7 +83,6 @@ Map createProduct() {
     ])
     delegator.create(product)
 
-    // Create LIST_PRICE
     GenericValue price1 = delegator.makeValue('ProductPrice', [
         productId           : productId,
         productPriceTypeId  : 'LIST_PRICE',
@@ -99,7 +94,6 @@ Map createProduct() {
     ])
     delegator.create(price1)
 
-    // Link to category
     GenericValue catMember = delegator.makeValue('ProductCategoryMember', [
         productCategoryId: productCategoryId,
         productId        : productId,
@@ -111,7 +105,6 @@ Map createProduct() {
     return result
 }
 
-// Step 5: Update product price and/or feature
 Map updateProduct() {
     Map result = success()
 
@@ -122,7 +115,6 @@ Map updateProduct() {
         return error("Product not found: ${productId}")
     }
 
-    // Update price if provided
     if (parameters.price != null) {
         String currencyUomId = parameters.currencyUomId ?: 'USD'
         List prices = from('ProductPrice')
@@ -148,7 +140,6 @@ Map updateProduct() {
         }
     }
 
-    // Add feature if provided
     if (parameters.productFeatureId) {
         GenericValue existing = from('ProductFeatureAppl')
             .where('productId', productId, 'productFeatureId', parameters.productFeatureId)
@@ -167,7 +158,6 @@ Map updateProduct() {
     return result
 }
 
-// Step 6: Associate variant to virtual product
 Map assocProductToVirtual() {
     Map result = success()
 
@@ -184,7 +174,6 @@ Map assocProductToVirtual() {
         return error("Product ${virtualProductId} is not marked as virtual")
     }
 
-    // Create ProductAssoc of type PRODUCT_VARIANT
     GenericValue existing = from('ProductAssoc')
         .where('productId', virtualProductId, 'productIdTo', productId, 'productAssocTypeId', 'PRODUCT_VARIANT')
         .queryFirst()
@@ -200,14 +189,12 @@ Map assocProductToVirtual() {
         fromDate           : new java.sql.Timestamp(System.currentTimeMillis())
     ]))
 
-    // Mark variant
     variant.set('isVariant', 'Y')
     variant.store()
 
     return result
 }
 
-// Step 6: Update existing virtual-variant relationship
 Map updateProductVariant() {
     Map result = success()
 
@@ -215,7 +202,6 @@ Map updateProductVariant() {
     String virtualProductId = parameters.virtualProductId
     String newVirtualProductId = parameters.newVirtualProductId
 
-    // Check existing relationship
     GenericValue existing = from('ProductAssoc')
         .where('productId', virtualProductId, 'productIdTo', productId, 'productAssocTypeId', 'PRODUCT_VARIANT')
         .queryFirst()
@@ -228,11 +214,9 @@ Map updateProductVariant() {
     if (!newVirtual) return error("New virtual product not found: ${newVirtualProductId}")
     if (newVirtual.isVirtual != 'Y') return error("Product ${newVirtualProductId} is not marked as virtual")
 
-    // Expire old association
     existing.set('thruDate', new java.sql.Timestamp(System.currentTimeMillis()))
     existing.store()
 
-    // Create new association
     delegator.create(delegator.makeValue('ProductAssoc', [
         productId          : newVirtualProductId,
         productIdTo        : productId,

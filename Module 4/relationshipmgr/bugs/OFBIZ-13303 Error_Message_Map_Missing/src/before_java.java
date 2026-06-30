@@ -1,6 +1,4 @@
 public class before_java {
-    //Inside ModelServiceReader -> createAttrDefs(...)
-// Add the default optional parameters
     ModelParam def;
 
 // responseMessage
@@ -29,8 +27,6 @@ public class before_java {
     def.optional = true;
     def.internal = true;
         service.addParam(def);
-
-//  MISSING: errorMessageMap
 
 // successMessage
     def = new ModelParam();

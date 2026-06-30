@@ -2,7 +2,6 @@
 <forms xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="https://ofbiz.apache.org/dtds/widget-form.xsd">
 
-    <!-- Customer search form -->
     <form name="FindCustomerForm" type="single" target="findCustomer">
         <field name="partyId">       <text/></field>
         <field name="firstName">     <text/></field>
@@ -15,7 +14,6 @@
         </field>
     </form>
 
-    <!-- Create customer form -->
     <form name="CreateCustomerForm" type="single" target="createCustomer">
         <field name="emailAddress"   required-field="true"><text/></field>
         <field name="firstName"      required-field="true"><text/></field>
@@ -29,7 +27,6 @@
         </field>
     </form>
 
-    <!-- Update customer form -->
     <form name="UpdateCustomerForm" type="single" target="updateCustomer">
         <field name="emailAddress"    required-field="true"><display/></field>
         <field name="contactNumber">  <text/></field>

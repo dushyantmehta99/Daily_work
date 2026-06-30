@@ -5,11 +5,6 @@ import org.apache.ofbiz.entity.condition.EntityOperator
 
 import java.sql.Timestamp
 
-/**
- * Find customers matching the given criteria.
- * Filters use partial, case-insensitive matching (LIKE %value%).
- * Phone and address are looked up per-party after the initial view query.
- */
 Map findCustomer() {
     List conditions = [
         EntityCondition.makeCondition("contactMechPurposeTypeId", EntityOperator.EQUALS, "EmailPrimary")
@@ -41,7 +36,6 @@ Map findCustomer() {
             emailAddress : row.emailAddress
         ]
 
-        // Lookup phone and address for this party
         def pcmList = from("PartyContactMech")
                 .where("partyId", row.partyId)
                 .filterByDate()
@@ -59,7 +53,6 @@ Map findCustomer() {
             }
         }
 
-        // Apply phone/address filters post-lookup (partial, case-insensitive)
         boolean include = true
         if (parameters.contactNumber && !customer.contactNumber?.contains(parameters.contactNumber)) include = false
         if (parameters.address1 && !customer.address1?.toLowerCase()?.contains(parameters.address1.toLowerCase())) include = false
@@ -70,15 +63,9 @@ Map findCustomer() {
     return [customerList: customerList]
 }
 
-/**
- * Create a new customer.
- * Requires email (unique identifier), firstName, lastName.
- * Optionally creates phone and postal address contact mechs.
- */
 Map createCustomer() {
     String email = parameters.emailAddress
 
-    // Duplicate check by primary email
     def existing = from("FindCustomerView")
             .where(EntityCondition.makeCondition([
                 EntityCondition.makeCondition("emailAddress", EntityOperator.EQUALS, email),
@@ -91,14 +78,11 @@ Map createCustomer() {
 
     Timestamp now = new Timestamp(System.currentTimeMillis())
 
-    // Party
     String partyId = delegator.getNextSeqId("Party")
     delegator.create("Party", [partyId: partyId, partyTypeId: "PERSON"])
 
-    // Person
     delegator.create("Person", [partyId: partyId, firstName: parameters.firstName, lastName: parameters.lastName])
 
-    // Email ContactMech
     String cmId = delegator.getNextSeqId("ContactMech")
     delegator.create("ContactMech", [contactMechId: cmId, contactMechTypeId: "EMAIL_ADDRESS", infoString: email])
     delegator.create("PartyContactMech", [partyId: partyId, contactMechId: cmId, fromDate: now, allowSolicitation: "Y"])
@@ -109,7 +93,6 @@ Map createCustomer() {
         fromDate                 : now
     ])
 
-    // Optional phone
     if (parameters.contactNumber) {
         String phoneCmId = delegator.getNextSeqId("ContactMech")
         delegator.create("ContactMech",    [contactMechId: phoneCmId, contactMechTypeId: "TELECOM_NUMBER"])
@@ -117,7 +100,6 @@ Map createCustomer() {
         delegator.create("PartyContactMech", [partyId: partyId, contactMechId: phoneCmId, fromDate: now])
     }
 
-    // Optional postal address
     if (parameters.address1) {
         String addrCmId = delegator.getNextSeqId("ContactMech")
         delegator.create("ContactMech",  [contactMechId: addrCmId, contactMechTypeId: "POSTAL_ADDRESS"])
@@ -133,9 +115,6 @@ Map createCustomer() {
     return [partyId: partyId]
 }
 
-/**
- * Update a customer's phone and/or postal address, identified by email.
- */
 Map updateCustomer() {
     String email = parameters.emailAddress
     Timestamp now = new Timestamp(System.currentTimeMillis())
@@ -197,9 +176,6 @@ Map updateCustomer() {
     return [:]
 }
 
-/**
- * Create a PartyRelationship between two parties.
- */
 Map createCustomerRelationship() {
     String partyIdFrom = parameters.partyIdFrom
     String partyIdTo   = parameters.partyIdTo
@@ -225,9 +201,6 @@ Map createCustomerRelationship() {
     return [:]
 }
 
-/**
- * Update the status of an existing active party relationship.
- */
 Map updateCustomerRelationship() {
     String partyIdFrom = parameters.partyIdFrom
     String partyIdTo   = parameters.partyIdTo

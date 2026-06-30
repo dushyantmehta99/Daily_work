@@ -1,14 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <entities xmlns="http://moqui.org/xsd/entity-definition-3.0.xsd">
 
-    <!-- Party: represents any person or organization -->
     <entity entity-name="Party" package-name="party">
         <field name="partyId"         type="id"        is-pk="true"/>
         <field name="partyTypeEnumId" type="id"/>
         <field name="createdDate"     type="date-time"/>
     </entity>
 
-    <!-- Person: additional details for individual persons -->
     <entity entity-name="Person" package-name="party">
         <field name="partyId"     type="id"         is-pk="true"/>
         <field name="firstName"   type="text-short"/>
@@ -19,7 +17,6 @@
         </relationship>
     </entity>
 
-    <!-- PartyGroup: details for companies and organizations -->
     <entity entity-name="PartyGroup" package-name="party">
         <field name="partyId"     type="id"          is-pk="true"/>
         <field name="groupName"   type="text-short"/>
@@ -29,7 +26,6 @@
         </relationship>
     </entity>
 
-    <!-- ContactMech: stores email, phone, or address info -->
     <entity entity-name="ContactMech" package-name="party">
         <field name="contactMechId"     type="id"          is-pk="true"/>
         <field name="contactMechTypeId" type="id"/>
@@ -37,7 +33,6 @@
         <field name="createdDate"       type="date-time"/>
     </entity>
 
-    <!-- PartyContactMech: links a Party to a ContactMech -->
     <entity entity-name="PartyContactMech" package-name="party">
         <field name="partyId"       type="id"        is-pk="true"/>
         <field name="contactMechId" type="id"        is-pk="true"/>

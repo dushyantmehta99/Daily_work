@@ -2,11 +2,6 @@
 <services xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:noNamespaceSchemaLocation="http://moqui.org/xsd/service-definition-3.xsd">
 
-    <!--
-        Service: create#Person
-        Creates a Person record only if a matching Party already exists.
-        Validates all required fields before creating.
-    -->
     <service verb="create" noun="Person" type="script"
              location="component://party/service/PartyServices.groovy">
 

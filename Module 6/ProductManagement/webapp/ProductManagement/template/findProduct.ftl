@@ -1,8 +1,3 @@
-<#--
-  findProduct.ftl — Step 8: Product Search Screen
-  Allows filtering by Product ID, Name, Category, Price, and Features.
-  Results shown in a paginated table.
--->
 <!DOCTYPE html>
 <html>
 <head>
@@ -38,7 +33,6 @@
 
 <h2>Find Product</h2>
 
-<!-- Search Form -->
 <div class="search-box">
     <form method="post" action="<@ofbizUrl>findProduct</@ofbizUrl>">
         <table>
@@ -71,12 +65,10 @@
     </form>
 </div>
 
-<!-- Create Product Button -->
 <div class="create-section">
     <a href="<@ofbizUrl>createProduct</@ofbizUrl>" class="btn">+ Create New Product</a>
 </div>
 
-<!-- Search Results -->
 <div class="results">
 <#assign pageSize = 10/>
 <#assign productList = productList![]/>
@@ -127,7 +119,6 @@
         </tbody>
     </table>
 
-    <!-- Pagination -->
     <#if totalPages gt 1>
     <div class="pagination">
         <#list 1..totalPages as p>

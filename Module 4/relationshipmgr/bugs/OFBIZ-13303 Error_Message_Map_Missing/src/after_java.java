@@ -1,5 +1,4 @@
 public class after_java {
-    // Add the default optional parameters
     ModelParam def;
 
 // responseMessage
@@ -29,7 +28,6 @@ service.addParam(def);
     def.internal = true;
 service.addParam(def);
 
-//  FIX: Add errorMessageMap
     def = new ModelParam();
     def.name = ModelService.ERROR_MESSAGE_MAP;
     def.type = "java.util.Map";
