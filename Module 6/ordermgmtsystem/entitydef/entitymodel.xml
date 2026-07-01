@@ -19,10 +19,6 @@ to you under the Apache License, Version 2.0.
     <copyright></copyright>
     <version>1.0</version>
 
-    <!-- ========================================================= -->
-    <!-- ===================== ORDER HEADER ======================= -->
-    <!-- ========================================================= -->
-
     <entity entity-name="OmsOrderHeader"
             package-name="org.ordermgmtsystem.order"
             title="OMS Order Header">
@@ -36,10 +32,6 @@ to you under the Apache License, Version 2.0.
         <prim-key field="orderId"/>
 
     </entity>
-
-    <!-- ========================================================= -->
-    <!-- ====================== ORDER PART ======================== -->
-    <!-- ========================================================= -->
 
     <entity entity-name="OmsOrderPart"
             package-name="org.ordermgmtsystem.order"
@@ -59,10 +51,6 @@ to you under the Apache License, Version 2.0.
         </relation>
 
     </entity>
-
-    <!-- ========================================================= -->
-    <!-- ====================== ORDER ITEM ======================== -->
-    <!-- ========================================================= -->
 
     <entity entity-name="OmsOrderItem"
             package-name="org.ordermgmtsystem.order"
@@ -85,10 +73,6 @@ to you under the Apache License, Version 2.0.
 
     </entity>
 
-    <!-- ========================================================= -->
-    <!-- ====================== ORDER ROLE ======================== -->
-    <!-- ========================================================= -->
-
     <entity entity-name="OmsOrderRole"
             package-name="org.ordermgmtsystem.order"
             title="OMS Order Role">
@@ -107,10 +91,6 @@ to you under the Apache License, Version 2.0.
 
     </entity>
 
-    <!-- ========================================================= -->
-    <!-- ================= ORDER CONTACT MECH ===================== -->
-    <!-- ========================================================= -->
-
     <entity entity-name="OmsOrderContactMech"
             package-name="org.ordermgmtsystem.order"
             title="OMS Order Contact Mech">
@@ -127,10 +107,6 @@ to you under the Apache License, Version 2.0.
         </relation>
 
     </entity>
-
-    <!-- ========================================================= -->
-    <!-- =================== ORDER ADJUSTMENT ===================== -->
-    <!-- ========================================================= -->
 
     <entity entity-name="OmsOrderAdjustment"
             package-name="org.ordermgmtsystem.order"
@@ -150,10 +126,6 @@ to you under the Apache License, Version 2.0.
 
     </entity>
 
-    <!-- ========================================================= -->
-    <!-- ====================== ORDER STATUS ====================== -->
-    <!-- ========================================================= -->
-
     <entity entity-name="OmsOrderStatus"
             package-name="org.ordermgmtsystem.order"
             title="OMS Order Status">
@@ -170,10 +142,6 @@ to you under the Apache License, Version 2.0.
         </relation>
 
     </entity>
-
-    <!-- ========================================================= -->
-    <!-- ====================== ORDER PAYMENT ===================== -->
-    <!-- ========================================================= -->
 
     <entity entity-name="OmsOrderPayment"
             package-name="org.ordermgmtsystem.order"
@@ -192,10 +160,6 @@ to you under the Apache License, Version 2.0.
         </relation>
 
     </entity>
-
-    <!-- ========================================================= -->
-    <!-- ==================== ORDER ITEM ASSOC ==================== -->
-    <!-- ========================================================= -->
 
     <entity entity-name="OmsOrderItemAssoc"
             package-name="org.ordermgmtsystem.order"

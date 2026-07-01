@@ -13,7 +13,6 @@
         <response name="success" type="view" value="main"/>
     </request-map>
 
-    <!-- Step 7: findProduct event -->
     <request-map uri="findProduct">
         <security https="true" auth="true"/>
         <event type="service" invoke="findProduct"/>
@@ -21,7 +20,6 @@
         <response name="error"   type="view" value="findProduct"/>
     </request-map>
 
-    <!-- Step 7: createProduct event -->
     <request-map uri="createProduct">
         <security https="true" auth="true"/>
         <event type="service" invoke="createProduct"/>
@@ -29,7 +27,6 @@
         <response name="error"   type="view" value="createProduct"/>
     </request-map>
 
-    <!-- Step 7: updateProduct event -->
     <request-map uri="updateProduct">
         <security https="true" auth="true"/>
         <event type="service" invoke="updateProduct"/>

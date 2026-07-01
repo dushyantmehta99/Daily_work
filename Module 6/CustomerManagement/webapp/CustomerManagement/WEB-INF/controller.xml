@@ -15,18 +15,14 @@
         <event type="java" path="org.apache.ofbiz.webapp.control.LoginWorker" invoke="checkLogin"/>
     </preprocessor>
 
-    <!-- ===== View Maps ===== -->
     <view-map name="main"         type="ftl" page="component://CustomerManagement/webapp/CustomerManagement/template/findCustomer.ftl"/>
     <view-map name="findCustomer" type="ftl" page="component://CustomerManagement/webapp/CustomerManagement/template/findCustomer.ftl"/>
-
-    <!-- ===== Request Maps ===== -->
 
     <request-map uri="main">
         <security https="true" auth="true"/>
         <response name="success" type="view" value="main"/>
     </request-map>
 
-    <!-- Triggered when user submits the search form -->
     <request-map uri="findCustomer">
         <security https="true" auth="true"/>
         <event type="service" invoke="findCustomer"/>
@@ -34,7 +30,6 @@
         <response name="error"   type="view" value="findCustomer"/>
     </request-map>
 
-    <!-- Triggered when user submits the Add New Customer form -->
     <request-map uri="createCustomer">
         <security https="true" auth="true"/>
         <event type="service" invoke="createCustomer"/>
@@ -42,7 +37,6 @@
         <response name="error"   type="view" value="findCustomer"/>
     </request-map>
 
-    <!-- Triggered when user submits the inline Update form in the results table -->
     <request-map uri="updateCustomer">
         <security https="true" auth="true"/>
         <event type="service" invoke="updateCustomer"/>
@@ -50,7 +44,6 @@
         <response name="error"   type="view" value="findCustomer"/>
     </request-map>
 
-    <!-- Triggered when user creates a party-to-party relationship -->
     <request-map uri="createCustomerRelationship">
         <security https="true" auth="true"/>
         <event type="service" invoke="createCustomerRelationship"/>
@@ -58,7 +51,6 @@
         <response name="error"   type="view" value="findCustomer"/>
     </request-map>
 
-    <!-- Triggered when user updates an existing party relationship -->
     <request-map uri="updateCustomerRelationship">
         <security https="true" auth="true"/>
         <event type="service" invoke="updateCustomerRelationship"/>

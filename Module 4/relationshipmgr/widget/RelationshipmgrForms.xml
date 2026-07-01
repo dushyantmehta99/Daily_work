@@ -25,7 +25,6 @@ under the License.
         <actions>
             <entity-condition entity-name="DmPerson"/>
         </actions>
-        <!-- This automatically generates fields based on the DmPerson entity definition -->
         <auto-fields-entity entity-name="DmPerson" default-field-type="display"/>
         <field name="partyId" title="ID">
             <hyperlink target="viewprofile" description="${partyId}">

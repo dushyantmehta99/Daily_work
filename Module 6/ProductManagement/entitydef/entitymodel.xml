@@ -6,7 +6,6 @@
     <description>View entity for dynamic product finder. Core entities (Product, ProductPrice,
         ProductCategory, ProductFeature) are defined in applications/product.</description>
 
-    <!-- Step 3: FindProductView — joins Product, ProductPrice, ProductFeatureAppl, ProductFeature -->
     <view-entity entity-name="FindProductView" package-name="org.apache.ofbiz.productmgmt"
             title="Find Product View">
         <member-entity entity-alias="P"   entity-name="Product"/>

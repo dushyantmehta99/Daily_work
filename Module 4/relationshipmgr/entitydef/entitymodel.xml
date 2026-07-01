@@ -29,17 +29,12 @@ under the License.
 <!--    <version></version>-->
 
 
-    <!-- ========================================================= -->
-    <!-- Party Data Model (Supertypes and Subtypes)                -->
-    <!-- ========================================================= -->
-    <!-- Supertype: Party -->
     <entity entity-name="DmParty" package-name="org.apache.ofbiz.relationshipmgr">
         <field name="partyId" type="id"/>
         <field name="partyTypeId" type="id"/>
         <prim-key field="partyId"/>
     </entity>
 
-    <!-- SubType: Person -->
     <entity entity-name="DmPerson" package-name="org.apache.ofbiz.relationshipmgr">
         <field name="partyId" type="id"/>
         <field name="firstName" type="name"/>
@@ -53,7 +48,6 @@ under the License.
         </relation>
     </entity>
 
-    <!-- SubType: Retail Store -->
     <entity entity-name="DmRetailStore" package-name="org.apache.ofbiz.relationshipmgr">
         <field name="partyId" type="id"/>
         <field name="storeName" type="name"/>
@@ -65,7 +59,6 @@ under the License.
         </relation>
     </entity>
 
-    <!-- Intersection Entity: Party Role -->
     <entity entity-name="DmPartyRole" package-name="org.apache.ofbiz.relationshipmgr">
         <field name="partyId" type="id"/>
         <field name="roleTypeId" type="id"/>
@@ -78,11 +71,6 @@ under the License.
         </relation>
     </entity>
 
-
-    <!-- ========================================================= -->
-    <!-- Contact Mechanism Data Model                              -->
-    <!-- ========================================================= -->
-    <!-- Supertype: Contact Mechanism -->
     <entity entity-name="DmContactMech" package-name="org.apache.ofbiz.relationshipmgr">
         <field name="contactMechId" type="id"/>
         <field name="contactMechTypeId" type="id"/>
@@ -91,7 +79,6 @@ under the License.
         <prim-key field="contactMechId"/>
     </entity>
 
-    <!-- Subtype: Postal Address -->
     <entity entity-name="DmPostalAddress" package-name="org.apache.ofbiz.relationshipmgr">
         <field name="contactMechId" type="id"/>
         <field name="address1" type="name"/>
@@ -103,7 +90,6 @@ under the License.
         </relation>
     </entity>
 
-    <!-- Intersection Entity: Party Contact Mechanism -->
     <entity entity-name="DmPartyContactMech" package-name="org.apache.ofbiz.relationshipmgr">
         <field name="partyId" type="id"/>
         <field name="contactMechId" type="id"/>

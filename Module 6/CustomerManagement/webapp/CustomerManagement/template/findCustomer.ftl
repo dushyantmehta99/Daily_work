@@ -192,6 +192,6 @@
 </div>
 </#if>
 
-</div><!-- /container -->
+</div>
 </body>
 </html>

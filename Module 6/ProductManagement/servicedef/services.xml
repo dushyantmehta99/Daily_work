@@ -4,7 +4,6 @@
     <description>ProductManagement Services</description>
     <version>1.0</version>
 
-    <!-- Step 4: findProduct -->
     <service name="findProduct" engine="groovy" auth="true"
              location="component://ProductManagement/src/main/groovy/org/apache/ofbiz/productmgmt/ProductServices.groovy"
              invoke="findProduct">
@@ -18,7 +17,6 @@
         <attribute name="productList"        type="List"       mode="OUT" optional="false"/>
     </service>
 
-    <!-- Step 5: createProduct -->
     <service name="createProduct" engine="groovy" auth="true"
              location="component://ProductManagement/src/main/groovy/org/apache/ofbiz/productmgmt/ProductServices.groovy"
              invoke="createProduct">
@@ -31,7 +29,6 @@
         <attribute name="productId"       type="String"     mode="OUT" optional="false"/>
     </service>
 
-    <!-- Step 5: updateProduct -->
     <service name="updateProduct" engine="groovy" auth="true"
              location="component://ProductManagement/src/main/groovy/org/apache/ofbiz/productmgmt/ProductServices.groovy"
              invoke="updateProduct">
@@ -42,7 +39,6 @@
         <attribute name="productFeatureId"   type="String"     mode="IN" optional="true"/>
     </service>
 
-    <!-- Step 6: assocProductToVirtual -->
     <service name="assocProductToVirtual" engine="groovy" auth="true"
              location="component://ProductManagement/src/main/groovy/org/apache/ofbiz/productmgmt/ProductServices.groovy"
              invoke="assocProductToVirtual">
@@ -51,7 +47,6 @@
         <attribute name="virtualProductId" type="String" mode="IN" optional="false"/>
     </service>
 
-    <!-- Step 6: updateProductVariant -->
     <service name="updateProductVariant" engine="groovy" auth="true"
              location="component://ProductManagement/src/main/groovy/org/apache/ofbiz/productmgmt/ProductServices.groovy"
              invoke="updateProductVariant">

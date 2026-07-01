@@ -3,7 +3,6 @@
         xmlns="http://ofbiz.apache.org/Widget-Form"
         xsi:schemaLocation="http://ofbiz.apache.org/Widget-Form http://ofbiz.apache.org/dtds/widget-form.xsd">
 
-    <!-- Find Product search form -->
     <form name="FindProductForm" type="single" target="findProduct" title="Find Product">
         <field name="productId"            title="Product ID">
             <text-find default-option="contains" ignore-case="true"/>
@@ -28,7 +27,6 @@
         </field>
     </form>
 
-    <!-- Create Product form -->
     <form name="CreateProductForm" type="single" target="createProduct" title="Create Product">
         <field name="productName"      title="Product Name" required-field="true"><text/></field>
         <field name="productCategoryId" title="Category ID"  required-field="true"><text/></field>
@@ -41,7 +39,6 @@
         </field>
     </form>
 
-    <!-- Update Product form -->
     <form name="UpdateProductForm" type="single" target="updateProduct" title="Update Product">
         <field name="productId"       title="Product ID" required-field="true"><text/></field>
         <field name="price"           title="New Price"><text/></field>

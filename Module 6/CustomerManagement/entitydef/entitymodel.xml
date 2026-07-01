@@ -4,10 +4,6 @@
 
     <title>Customer Management Entity Model</title>
 
-    <!--
-        FindCustomerView — joins Party + Person with email ContactMech via PartyContactMechPurpose.
-        Filter by contactMechPurposeTypeId="EmailPrimary" in services to get each customer's primary email.
-    -->
     <view-entity entity-name="FindCustomerView" package-name="org.apache.ofbiz.customermgmt"
             title="View-entity for customer lookup with email as unique identifier">
 
