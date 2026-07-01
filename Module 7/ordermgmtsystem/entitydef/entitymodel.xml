@@ -10,10 +10,6 @@ to you under the Apache License, Version 2.0.
 <entitymodel xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="https://ofbiz.apache.org/dtds/entitymodel.xsd">
 
-    <!-- ========================================================= -->
-    <!-- ======================== Defaults ======================== -->
-    <!-- ========================================================= -->
-
     <title>Entity of Ordermgmtsystem Component</title>
     <description>Order Management System Entities</description>
     <copyright></copyright>
@@ -40,7 +36,10 @@ to you under the Apache License, Version 2.0.
         <field name="orderId" type="id"/>
         <field name="orderPartSeqId" type="id"/>
         <field name="statusId" type="id"/>
+        <field name="customerPartyId" type="id"/>
+        <field name="vendorPartyId" type="id"/>
         <field name="postalContactMechId" type="id"/>
+        <field name="telecomContactMechId" type="id"/>
         <field name="partTotal" type="currency-amount"/>
 
         <prim-key field="orderId"/>
@@ -177,6 +176,24 @@ to you under the Apache License, Version 2.0.
         <relation type="one" rel-entity-name="OmsOrderItem">
             <key-map field-name="orderId"/>
             <key-map field-name="orderItemSeqId"/>
+        </relation>
+
+    </entity>
+
+    <entity entity-name="OmsOrderTerm"
+            package-name="org.ordermgmtsystem.order"
+            title="OMS Order Term">
+
+        <field name="orderTermId" type="id"/>
+        <field name="orderId" type="id"/>
+        <field name="termTypeId" type="id"/>
+        <field name="termValue" type="currency-amount"/>
+        <field name="description" type="description"/>
+
+        <prim-key field="orderTermId"/>
+
+        <relation type="one" rel-entity-name="OmsOrderHeader">
+            <key-map field-name="orderId"/>
         </relation>
 
     </entity>

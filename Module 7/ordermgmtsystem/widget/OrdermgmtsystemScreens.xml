@@ -29,7 +29,8 @@ under the License.
             <widgets>
                 <decorator-screen name="OrdermgmtsystemCommonDecorator" location="${parameters.mainDecoratorLocation}">
                 <decorator-section name="body">
-                     </decorator-section>
+                    <include-screen name="OrderDashboard"/>
+                </decorator-section>
                 </decorator-screen>
             </widgets>
         </section>
@@ -38,10 +39,12 @@ under the License.
   <screen name="OrderDashboard">
     <section>
         <widgets>
-            <label text="Welcome to Order Management System"/>
-            <include-form
-                name="CreateOrderForm"
-                location="component://ordermgmtsystem/widget/OrderForms.xml"/>
+            <screenlet title="Welcome to Order Information Manager">
+                <label style="h3">Use the Orders menu to manage orders, order items, parties, contact mechs, adjustments, statuses, payments, item associations and terms.</label>
+                <container style="button-bar">
+                    <link target="orders" text="Go to Orders" style="buttontext create"/>
+                </container>
+            </screenlet>
         </widgets>
     </section>
 </screen>

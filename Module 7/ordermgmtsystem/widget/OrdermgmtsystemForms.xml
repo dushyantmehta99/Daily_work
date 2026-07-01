@@ -21,24 +21,219 @@ under the License.
 <forms xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xmlns="http://ofbiz.apache.org/Widget-Form" xsi:schemaLocation="http://ofbiz.apache.org/Widget-Form http://ofbiz.apache.org/dtds/widget-form.xsd">
 
-        <form name="CreateOrderForm" type="single">
-
-        <field name="orderId">
-            <text/>
+    <form name="OrderListForm" type="list" list-name="orderList"
+          odd-row-style="alternate-row" default-table-style="basic-table hover-bar">
+        <field name="orderId" widget-style="buttontext">
+            <hyperlink description="${orderId}" target="EditOrder">
+                <parameter param-name="orderId"/>
+            </hyperlink>
         </field>
-
-        <field name="orderTypeId">
-            <text/>
+        <field name="orderTypeId" title="Order Type"><display/></field>
+        <field name="statusId" title="Status"><display/></field>
+        <field name="orderDate" title="Order Date"><display type="date-time"/></field>
+        <field name="grandTotal" title="Grand Total"><display/></field>
+        <field name="deleteLink" title=" " widget-style="buttontext">
+            <hyperlink description="${uiLabelMap.CommonDelete}" target="deleteOrder">
+                <parameter param-name="orderId"/>
+            </hyperlink>
         </field>
+    </form>
 
-        <field name="statusId">
-            <text/>
+    <form name="EditOrder" type="single" target="updateOrder" default-map-name="order"
+          header-row-style="header-row" default-table-style="basic-table">
+        <alt-target use-when="order==null" target="createOrder"/>
+        <field name="orderId" title="Order ID"><text/></field>
+        <field name="orderTypeId" title="Order Type"><text size="20"/></field>
+        <field name="statusId" title="Status"><text size="20"/></field>
+        <field name="orderDate" title="Order Date"><date-time default-value="${nowTimestamp}"/></field>
+        <field name="grandTotal" title="Grand Total"><text size="10"/></field>
+        <field name="submitButton" title="${uiLabelMap.CommonSave}"><submit button-type="button"/></field>
+    </form>
+
+    <form name="ListOrderPart" type="list" list-name="orderPartList"
+          odd-row-style="alternate-row" default-table-style="basic-table">
+        <field name="orderPartSeqId"><display/></field>
+        <field name="statusId" title="Status"><display/></field>
+        <field name="customerPartyId" title="Customer Party"><display/></field>
+        <field name="vendorPartyId" title="Vendor Party"><display/></field>
+        <field name="postalContactMechId" title="Postal Contact Mech"><display/></field>
+        <field name="telecomContactMechId" title="Telecom Contact Mech"><display/></field>
+        <field name="partTotal" title="Part Total"><display/></field>
+        <field name="deleteLink" title=" " widget-style="buttontext">
+            <hyperlink description="${uiLabelMap.CommonDelete}" target="deleteOrderPart">
+                <parameter param-name="orderId"/>
+                <parameter param-name="orderPartSeqId"/>
+            </hyperlink>
         </field>
+    </form>
+    <form name="AddOrderPart" type="single" target="createOrderPart" default-table-style="basic-table">
+        <field name="orderId"><hidden/></field>
+        <field name="statusId" title="Status"><text size="20"/></field>
+        <field name="customerPartyId" title="Customer Party"><text size="20"/></field>
+        <field name="vendorPartyId" title="Vendor Party"><text size="20"/></field>
+        <field name="postalContactMechId" title="Postal Contact Mech"><text size="20"/></field>
+        <field name="telecomContactMechId" title="Telecom Contact Mech"><text size="20"/></field>
+        <field name="partTotal" title="Part Total"><text size="10"/></field>
+        <field name="submitButton" title="${uiLabelMap.CommonAdd}"><submit button-type="button"/></field>
+    </form>
 
-        <field name="grandTotal">
-            <text/>
+    <form name="ListOrderItem" type="list" list-name="orderItemList"
+          odd-row-style="alternate-row" default-table-style="basic-table">
+        <field name="orderItemSeqId"><display/></field>
+        <field name="orderPartSeqId" title="Part"><display/></field>
+        <field name="productId" title="Product"><display/></field>
+        <field name="quantity"><display/></field>
+        <field name="unitPrice" title="Unit Price"><display/></field>
+        <field name="deleteLink" title=" " widget-style="buttontext">
+            <hyperlink description="${uiLabelMap.CommonDelete}" target="deleteOrderItem">
+                <parameter param-name="orderId"/>
+                <parameter param-name="orderItemSeqId"/>
+            </hyperlink>
         </field>
+    </form>
+    <form name="AddOrderItem" type="single" target="createOrderItem" default-table-style="basic-table">
+        <field name="orderId"><hidden/></field>
+        <field name="orderPartSeqId" title="Part"><text size="10"/></field>
+        <field name="productId" title="Product"><text size="20"/></field>
+        <field name="quantity" title="Quantity"><text size="10"/></field>
+        <field name="unitPrice" title="Unit Price"><text size="10"/></field>
+        <field name="submitButton" title="${uiLabelMap.CommonAdd}"><submit button-type="button"/></field>
+    </form>
 
+    <form name="ListOrderRole" type="list" list-name="orderRoleList"
+          odd-row-style="alternate-row" default-table-style="basic-table">
+        <field name="partyId" title="Party"><display/></field>
+        <field name="roleTypeId" title="Role Type"><display/></field>
+        <field name="deleteLink" title=" " widget-style="buttontext">
+            <hyperlink description="${uiLabelMap.CommonDelete}" target="deleteOrderRole">
+                <parameter param-name="orderId"/>
+                <parameter param-name="partyId"/>
+                <parameter param-name="roleTypeId"/>
+            </hyperlink>
+        </field>
+    </form>
+    <form name="AddOrderRole" type="single" target="createOrderRole" default-table-style="basic-table">
+        <field name="orderId"><hidden/></field>
+        <field name="partyId" title="Party"><text size="20"/></field>
+        <field name="roleTypeId" title="Role Type"><text size="20"/></field>
+        <field name="submitButton" title="${uiLabelMap.CommonAdd}"><submit button-type="button"/></field>
+    </form>
+
+    <form name="ListOrderContactMech" type="list" list-name="orderContactMechList"
+          odd-row-style="alternate-row" default-table-style="basic-table">
+        <field name="contactMechId" title="Contact Mech"><display/></field>
+        <field name="contactMechPurposeTypeId" title="Purpose"><display/></field>
+        <field name="deleteLink" title=" " widget-style="buttontext">
+            <hyperlink description="${uiLabelMap.CommonDelete}" target="deleteOrderContactMech">
+                <parameter param-name="orderId"/>
+                <parameter param-name="contactMechId"/>
+            </hyperlink>
+        </field>
+    </form>
+    <form name="AddOrderContactMech" type="single" target="createOrderContactMech" default-table-style="basic-table">
+        <field name="orderId"><hidden/></field>
+        <field name="contactMechId" title="Contact Mech"><text size="20"/></field>
+        <field name="contactMechPurposeTypeId" title="Purpose"><text size="20"/></field>
+        <field name="submitButton" title="${uiLabelMap.CommonAdd}"><submit button-type="button"/></field>
+    </form>
+
+    <form name="ListOrderAdjustment" type="list" list-name="orderAdjustmentList"
+          odd-row-style="alternate-row" default-table-style="basic-table">
+        <field name="orderAdjustmentId"><display/></field>
+        <field name="orderItemSeqId" title="Item"><display/></field>
+        <field name="adjustmentTypeId" title="Adjustment Type"><display/></field>
+        <field name="amount"><display/></field>
+        <field name="deleteLink" title=" " widget-style="buttontext">
+            <hyperlink description="${uiLabelMap.CommonDelete}" target="deleteOrderAdjustment">
+                <parameter param-name="orderAdjustmentId"/>
+            </hyperlink>
+        </field>
+    </form>
+    <form name="AddOrderAdjustment" type="single" target="createOrderAdjustment" default-table-style="basic-table">
+        <field name="orderId"><hidden/></field>
+        <field name="orderItemSeqId" title="Item"><text size="10"/></field>
+        <field name="adjustmentTypeId" title="Adjustment Type"><text size="20"/></field>
+        <field name="amount" title="Amount"><text size="10"/></field>
+        <field name="submitButton" title="${uiLabelMap.CommonAdd}"><submit button-type="button"/></field>
+    </form>
+
+    <form name="ListOrderStatus" type="list" list-name="orderStatusList"
+          odd-row-style="alternate-row" default-table-style="basic-table">
+        <field name="orderStatusId"><display/></field>
+        <field name="statusId" title="Status"><display/></field>
+        <field name="statusDate" title="Status Date"><display type="date-time"/></field>
+        <field name="deleteLink" title=" " widget-style="buttontext">
+            <hyperlink description="${uiLabelMap.CommonDelete}" target="deleteOrderStatus">
+                <parameter param-name="orderStatusId"/>
+            </hyperlink>
+        </field>
+    </form>
+    <form name="AddOrderStatus" type="single" target="createOrderStatus" default-table-style="basic-table">
+        <field name="orderId"><hidden/></field>
+        <field name="statusId" title="Status"><text size="20"/></field>
+        <field name="statusDate" title="Status Date"><date-time default-value="${nowTimestamp}"/></field>
+        <field name="submitButton" title="${uiLabelMap.CommonAdd}"><submit button-type="button"/></field>
+    </form>
+
+    <form name="ListOrderPayment" type="list" list-name="orderPaymentList"
+          odd-row-style="alternate-row" default-table-style="basic-table">
+        <field name="orderPaymentId"><display/></field>
+        <field name="paymentMethodTypeId" title="Payment Method"><display/></field>
+        <field name="amount"><display/></field>
+        <field name="statusId" title="Status"><display/></field>
+        <field name="deleteLink" title=" " widget-style="buttontext">
+            <hyperlink description="${uiLabelMap.CommonDelete}" target="deleteOrderPayment">
+                <parameter param-name="orderPaymentId"/>
+            </hyperlink>
+        </field>
+    </form>
+    <form name="AddOrderPayment" type="single" target="createOrderPayment" default-table-style="basic-table">
+        <field name="orderId"><hidden/></field>
+        <field name="paymentMethodTypeId" title="Payment Method"><text size="20"/></field>
+        <field name="amount" title="Amount"><text size="10"/></field>
+        <field name="statusId" title="Status"><text size="20"/></field>
+        <field name="submitButton" title="${uiLabelMap.CommonAdd}"><submit button-type="button"/></field>
+    </form>
+
+    <form name="ListOrderItemAssoc" type="list" list-name="orderItemAssocList"
+          odd-row-style="alternate-row" default-table-style="basic-table">
+        <field name="orderItemSeqId" title="From Item"><display/></field>
+        <field name="toOrderItemSeqId" title="To Item"><display/></field>
+        <field name="orderItemAssocTypeId" title="Association Type"><display/></field>
+        <field name="deleteLink" title=" " widget-style="buttontext">
+            <hyperlink description="${uiLabelMap.CommonDelete}" target="deleteOrderItemAssoc">
+                <parameter param-name="orderId"/>
+                <parameter param-name="orderItemSeqId"/>
+                <parameter param-name="toOrderItemSeqId"/>
+            </hyperlink>
+        </field>
+    </form>
+    <form name="AddOrderItemAssoc" type="single" target="createOrderItemAssoc" default-table-style="basic-table">
+        <field name="orderId"><hidden/></field>
+        <field name="orderItemSeqId" title="From Item"><text size="10"/></field>
+        <field name="toOrderItemSeqId" title="To Item"><text size="10"/></field>
+        <field name="orderItemAssocTypeId" title="Association Type"><text size="20"/></field>
+        <field name="submitButton" title="${uiLabelMap.CommonAdd}"><submit button-type="button"/></field>
+    </form>
+
+    <form name="ListOrderTerm" type="list" list-name="orderTermList"
+          odd-row-style="alternate-row" default-table-style="basic-table">
+        <field name="orderTermId"><display/></field>
+        <field name="termTypeId" title="Term Type"><display/></field>
+        <field name="termValue" title="Term Value"><display/></field>
+        <field name="description"><display/></field>
+        <field name="deleteLink" title=" " widget-style="buttontext">
+            <hyperlink description="${uiLabelMap.CommonDelete}" target="deleteOrderTerm">
+                <parameter param-name="orderTermId"/>
+            </hyperlink>
+        </field>
+    </form>
+    <form name="AddOrderTerm" type="single" target="createOrderTerm" default-table-style="basic-table">
+        <field name="orderId"><hidden/></field>
+        <field name="termTypeId" title="Term Type"><text size="20"/></field>
+        <field name="termValue" title="Term Value"><text size="10"/></field>
+        <field name="description" title="Description"><text size="30"/></field>
+        <field name="submitButton" title="${uiLabelMap.CommonAdd}"><submit button-type="button"/></field>
     </form>
 
 </forms>

@@ -128,4 +128,17 @@ under the License.
         <auto-attributes include="pk" mode="IN"/>
     </service>
 
+    <service name="createOmsOrderTerm" default-entity-name="OmsOrderTerm" engine="entity-auto" invoke="create" auth="true">
+        <auto-attributes include="pk" mode="INOUT" optional="true"/>
+        <auto-attributes include="nonpk" mode="IN" optional="true"/>
+        <override name="orderId" optional="false"/>
+    </service>
+    <service name="updateOmsOrderTerm" default-entity-name="OmsOrderTerm" engine="entity-auto" invoke="update" auth="true">
+        <auto-attributes include="pk" mode="IN"/>
+        <auto-attributes include="nonpk" mode="IN" optional="true"/>
+    </service>
+    <service name="deleteOmsOrderTerm" default-entity-name="OmsOrderTerm" engine="entity-auto" invoke="delete" auth="true">
+        <auto-attributes include="pk" mode="IN"/>
+    </service>
+
 </services>

@@ -20,4 +20,40 @@ under the License.
 
 <entity-engine-xml>
 
+    <OmsOrderHeader orderId="ORD789" orderTypeId="SALES_ORDER" statusId="PARTIALLY_FULFILLED"
+        orderDate="2024-09-15 00:00:00.000" grandTotal="2519.98"/>
+
+    <OmsOrderPart orderId="ORD789" orderPartSeqId="00001" statusId="COMPLETED"
+        customerPartyId="PER123" postalContactMechId="10003" partTotal="1364.99"/>
+    <OmsOrderItem orderId="ORD789" orderPartSeqId="00001" orderItemSeqId="00001" productId="PROD20001" quantity="1" unitPrice="1299.99"/>
+    <OmsOrderItem orderId="ORD789" orderPartSeqId="00001" orderItemSeqId="00003" productId="SALES_TAX" quantity="1" unitPrice="65.00"/>
+    <OmsOrderItemAssoc orderId="ORD789" orderItemSeqId="00001" toOrderItemSeqId="00003" orderItemAssocTypeId="TAX_LINE"/>
+
+    <OmsOrderPart orderId="ORD789" orderPartSeqId="00002" statusId="CREATED"
+        customerPartyId="PER123" postalContactMechId="10003" partTotal="1154.99"/>
+    <OmsOrderItem orderId="ORD789" orderPartSeqId="00002" orderItemSeqId="00002" productId="PROD10002" quantity="1" unitPrice="1099.99"/>
+    <OmsOrderItem orderId="ORD789" orderPartSeqId="00002" orderItemSeqId="00004" productId="SALES_TAX" quantity="1" unitPrice="55.00"/>
+    <OmsOrderItemAssoc orderId="ORD789" orderItemSeqId="00002" toOrderItemSeqId="00004" orderItemAssocTypeId="TAX_LINE"/>
+
+    <OmsOrderRole orderId="ORD789" partyId="PER123" roleTypeId="PLACING_CUSTOMER"/>
+    <OmsOrderContactMech orderId="ORD789" contactMechId="10003" contactMechPurposeTypeId="SHIPPING_LOCATION"/>
+    <OmsOrderAdjustment orderAdjustmentId="ORD789_ADJ1" orderId="ORD789" orderItemSeqId="00001" adjustmentTypeId="SHIPPING_CHARGES" amount="15.00"/>
+    <OmsOrderStatus orderStatusId="ORD789_ST1" orderId="ORD789" statusId="CREATED" statusDate="2024-09-15 00:00:00.000"/>
+    <OmsOrderStatus orderStatusId="ORD789_ST2" orderId="ORD789" statusId="PARTIALLY_FULFILLED" statusDate="2024-09-18 00:00:00.000"/>
+    <OmsOrderPayment orderPaymentId="ORD789_PAY1" orderId="ORD789" paymentMethodTypeId="CREDIT_CARD" amount="2519.98" statusId="PAYMENT_RECEIVED"/>
+
+    <OmsOrderHeader orderId="ORD123" orderTypeId="PURCHASE_ORDER" statusId="CREATED"
+        orderDate="2024-09-19 00:00:00.000" grandTotal="64999.50"/>
+    <OmsOrderPart orderId="ORD123" orderPartSeqId="00001" statusId="CREATED"
+        vendorPartyId="VEN456" postalContactMechId="10002" telecomContactMechId="10000" partTotal="64999.50"/>
+    <OmsOrderItem orderId="ORD123" orderPartSeqId="00001" orderItemSeqId="00001" productId="PROD20001" quantity="50" unitPrice="1299.99"/>
+
+    <OmsOrderRole orderId="ORD123" partyId="VEN456" roleTypeId="BILL_FROM_VENDOR"/>
+    <OmsOrderContactMech orderId="ORD123" contactMechId="10002" contactMechPurposeTypeId="SHIPPING_LOCATION"/>
+    <OmsOrderContactMech orderId="ORD123" contactMechId="10000" contactMechPurposeTypeId="PHONE_SHIPPING"/>
+    <OmsOrderStatus orderStatusId="ORD123_ST1" orderId="ORD123" statusId="CREATED" statusDate="2024-09-19 00:00:00.000"/>
+    <OmsOrderPayment orderPaymentId="ORD123_PAY1" orderId="ORD123" paymentMethodTypeId="COMPANY_CHECK" amount="64999.50" statusId="PAYMENT_NOT_RECEIVED"/>
+    <OmsOrderTerm orderTermId="ORD123_TERM1" orderId="ORD123" termTypeId="PAYMENT_TERM_NET_30" termValue="30" description="Net 30 days payment term"/>
+    <OmsOrderTerm orderTermId="ORD123_TERM2" orderId="ORD123" termTypeId="FOB_DESTINATION" description="Free on board destination - vendor bears delivery risk until goods arrive"/>
+
 </entity-engine-xml>
