@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<entity-engine-xml>
-    <SecurityPermission description="View and manage products in ProductManagement"
-        permissionId="PRODUCTMANAGEMENT_VIEW"/>
-    <SecurityPermission description="Create and update products in ProductManagement"
-        permissionId="PRODUCTMANAGEMENT_ADMIN"/>
-</entity-engine-xml>
