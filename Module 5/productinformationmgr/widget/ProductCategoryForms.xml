@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+
+<forms xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://ofbiz.apache.org/Widget-Form" xsi:schemaLocation="http://ofbiz.apache.org/Widget-Form http://ofbiz.apache.org/dtds/widget-form.xsd">
+
+    <form name="ListProductCategoryType" type="list" list-name="productCategoryTypeList"
+          odd-row-style="alternate-row" default-table-style="basic-table hover-bar">
+        <field name="productCategoryTypeId" widget-style="buttontext">
+            <hyperlink description="${productCategoryTypeId}" target="EditProductCategoryType">
+                <parameter param-name="productCategoryTypeId"/>
+            </hyperlink>
+        </field>
+        <field name="description"><display/></field>
+        <field name="deleteLink" title=" " widget-style="buttontext">
+            <hyperlink description="${uiLabelMap.CommonDelete}" target="deleteProductCategoryType">
+                <parameter param-name="productCategoryTypeId"/>
+            </hyperlink>
+        </field>
+    </form>
+
+    <form name="EditProductCategoryType" type="single" target="updateProductCategoryType" default-map-name="productCategoryType"
+          header-row-style="header-row" default-table-style="basic-table">
+        <alt-target use-when="productCategoryType==null" target="createProductCategoryType"/>
+        <field name="productCategoryTypeId" title="Category Type ID"><text/></field>
+        <field name="description" title="Description"><text size="40"/></field>
+        <field name="submitButton" title="${uiLabelMap.CommonSave}"><submit button-type="button"/></field>
+    </form>
+
+    <form name="ListProductCategory" type="list" list-name="productCategoryList"
+          odd-row-style="alternate-row" default-table-style="basic-table hover-bar">
+        <field name="productCategoryId" widget-style="buttontext">
+            <hyperlink description="${productCategoryId}" target="EditProductCategory">
+                <parameter param-name="productCategoryId"/>
+            </hyperlink>
+        </field>
+        <field name="categoryName" title="Name"><display/></field>
+        <field name="productCategoryTypeId" title="Type"><display/></field>
+        <field name="parentProductCategoryId" title="Parent Category"><display/></field>
+        <field name="deleteLink" title=" " widget-style="buttontext">
+            <hyperlink description="${uiLabelMap.CommonDelete}" target="deleteProductCategory">
+                <parameter param-name="productCategoryId"/>
+            </hyperlink>
+        </field>
+    </form>
+
+    <form name="EditProductCategory" type="single" target="updateProductCategory" default-map-name="productCategory"
+          header-row-style="header-row" default-table-style="basic-table">
+        <alt-target use-when="productCategory==null" target="createProductCategory"/>
+        <field name="productCategoryId" title="Category ID"><text/></field>
+        <field name="categoryName" title="Name"><text size="30"/></field>
+        <field name="productCategoryTypeId" title="Category Type">
+            <drop-down>
+                <entity-options entity-name="ProductCategoryType" description="${description} (${productCategoryTypeId})" key-field-name="productCategoryTypeId">
+                    <entity-order-by field-name="productCategoryTypeId"/>
+                </entity-options>
+            </drop-down>
+        </field>
+        <field name="parentProductCategoryId" title="Parent Category (Taxonomy)">
+            <drop-down allow-empty="true">
+                <entity-options entity-name="ProductCategory" description="${categoryName} (${productCategoryId})" key-field-name="productCategoryId">
+                    <entity-order-by field-name="productCategoryId"/>
+                </entity-options>
+            </drop-down>
+        </field>
+        <field name="submitButton" title="${uiLabelMap.CommonSave}"><submit button-type="button"/></field>
+    </form>
+
+</forms>

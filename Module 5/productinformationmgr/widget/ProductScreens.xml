@@ -34,9 +34,79 @@ under the License.
                 <decorator-screen name="ProductinformationmgrCommonDecorator" location="${parameters.mainDecoratorLocation}">
                     <decorator-section name="body">
                         <screenlet title="Product List">
+                            <container style="button-bar">
+                                <link target="EditProduct" text="Create New Product" style="buttontext create"/>
+                            </container>
                             <include-form name="ProductListForm"
                                           location="component://productinformationmgr/widget/ProductForms.xml"/>
                         </screenlet>
+                    </decorator-section>
+                </decorator-screen>
+            </widgets>
+        </section>
+    </screen>
+
+    <screen name="EditProduct">
+        <section>
+            <actions>
+                <set field="headerItem" value="products"/>
+                <set field="titleProperty" value="Edit Product"/>
+                <set field="productId" from-field="parameters.productId"/>
+                <entity-one entity-name="Product" value-field="product"/>
+                <entity-and entity-name="ProductContent" list="productContentList">
+                    <field-map field-name="productId" from-field="productId"/>
+                </entity-and>
+                <entity-and entity-name="ProductPrice" list="productPriceList">
+                    <field-map field-name="productId" from-field="productId"/>
+                </entity-and>
+                <entity-and entity-name="ProductDimension" list="productDimensionList">
+                    <field-map field-name="productId" from-field="productId"/>
+                </entity-and>
+                <entity-and entity-name="ProductAssoc" list="productAssocList">
+                    <field-map field-name="productId" from-field="productId"/>
+                </entity-and>
+                <entity-and entity-name="ProductCategoryMember" list="productCategoryMemberList">
+                    <field-map field-name="productId" from-field="productId"/>
+                </entity-and>
+                <entity-and entity-name="ProductFeatureAppl" list="productFeatureApplList">
+                    <field-map field-name="productId" from-field="productId"/>
+                </entity-and>
+            </actions>
+            <widgets>
+                <decorator-screen name="ProductinformationmgrCommonDecorator" location="${parameters.mainDecoratorLocation}">
+                    <decorator-section name="body">
+                        <screenlet title="Product Detail">
+                            <include-form name="EditProduct" location="component://productinformationmgr/widget/ProductForms.xml"/>
+                        </screenlet>
+                        <section>
+                            <condition><not><if-empty field="productId"/></not></condition>
+                            <widgets>
+                                <screenlet title="Product Content">
+                                    <include-form name="ListProductContent" location="component://productinformationmgr/widget/ProductForms.xml"/>
+                                    <include-form name="AddProductContent" location="component://productinformationmgr/widget/ProductForms.xml"/>
+                                </screenlet>
+                                <screenlet title="Product Prices">
+                                    <include-form name="ListProductPrice" location="component://productinformationmgr/widget/ProductForms.xml"/>
+                                    <include-form name="AddProductPrice" location="component://productinformationmgr/widget/ProductForms.xml"/>
+                                </screenlet>
+                                <screenlet title="Product Dimensions">
+                                    <include-form name="ListProductDimension" location="component://productinformationmgr/widget/ProductForms.xml"/>
+                                    <include-form name="AddProductDimension" location="component://productinformationmgr/widget/ProductForms.xml"/>
+                                </screenlet>
+                                <screenlet title="Product Associations">
+                                    <include-form name="ListProductAssoc" location="component://productinformationmgr/widget/ProductForms.xml"/>
+                                    <include-form name="AddProductAssoc" location="component://productinformationmgr/widget/ProductForms.xml"/>
+                                </screenlet>
+                                <screenlet title="Product Categories">
+                                    <include-form name="ListProductCategoryMember" location="component://productinformationmgr/widget/ProductForms.xml"/>
+                                    <include-form name="AddProductCategoryMember" location="component://productinformationmgr/widget/ProductForms.xml"/>
+                                </screenlet>
+                                <screenlet title="Product Features">
+                                    <include-form name="ListProductFeatureAppl" location="component://productinformationmgr/widget/ProductForms.xml"/>
+                                    <include-form name="AddProductFeatureAppl" location="component://productinformationmgr/widget/ProductForms.xml"/>
+                                </screenlet>
+                            </widgets>
+                        </section>
                     </decorator-section>
                 </decorator-screen>
             </widgets>

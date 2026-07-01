@@ -20,4 +20,42 @@ under the License.
 
 <entity-engine-xml>
 
+    <EnumerationType enumTypeId="PROD_TYPE" description="Product Type"/>
+    <Enumeration enumId="FINISHED_GOOD" enumTypeId="PROD_TYPE" description="Finished Good"/>
+    <Enumeration enumId="RAW_MATERIAL" enumTypeId="PROD_TYPE" description="Raw Material"/>
+    <Enumeration enumId="SERVICE" enumTypeId="PROD_TYPE" description="Service"/>
+    <Enumeration enumId="GOOD" enumTypeId="PROD_TYPE" description="Good"/>
+    <Enumeration enumId="CONFIGURABLE_GOOD" enumTypeId="PROD_TYPE" description="Configurable Good"/>
+    <Enumeration enumId="WORK_IN_PROCESS" enumTypeId="PROD_TYPE" description="Work In Process"/>
+    <Enumeration enumId="DIGITAL_GOOD" enumTypeId="PROD_TYPE" description="Digital Good"/>
+    <Enumeration enumId="VIRTUAL_GOOD" enumTypeId="PROD_TYPE" description="Virtual Product"/>
+    <Enumeration enumId="VARIANT_GOOD" enumTypeId="PROD_TYPE" description="Variant Product"/>
+    <Enumeration enumId="MARKETING_PKG" enumTypeId="PROD_TYPE" description="Marketing Package"/>
+
+    <EnumerationType enumTypeId="PROD_CONTENT_TYPE" description="Product Content Type"/>
+    <Enumeration enumId="IMAGE" enumTypeId="PROD_CONTENT_TYPE" description="Image"/>
+    <Enumeration enumId="DESCRIPTION" enumTypeId="PROD_CONTENT_TYPE" description="Description"/>
+
+    <EnumerationType enumTypeId="PROD_PRICE_TYPE" description="Product Price Type"/>
+    <Enumeration enumId="LIST_PRICE" enumTypeId="PROD_PRICE_TYPE" description="List Price"/>
+    <Enumeration enumId="PROMOTIONAL_PRICE" enumTypeId="PROD_PRICE_TYPE" description="Promotional Price"/>
+
+    <EnumerationType enumTypeId="PROD_DIM_TYPE" description="Product Dimension Type"/>
+    <Enumeration enumId="WEIGHT" enumTypeId="PROD_DIM_TYPE" description="Weight"/>
+
+    <EnumerationType enumTypeId="PROD_ASSOC_TYPE" description="Product Association Type"/>
+    <Enumeration enumId="VARIANT" enumTypeId="PROD_ASSOC_TYPE" description="Variant"/>
+    <Enumeration enumId="COMPONENT" enumTypeId="PROD_ASSOC_TYPE" description="Component"/>
+
+    <EnumerationType enumTypeId="PROD_FEAT_APPL_TYPE" description="Product Feature Applicability Type"/>
+    <Enumeration enumId="STANDARD_FEATURE" enumTypeId="PROD_FEAT_APPL_TYPE" description="Standard Feature"/>
+    <Enumeration enumId="SELECTABLE_FEATURE" enumTypeId="PROD_FEAT_APPL_TYPE" description="Selectable Feature"/>
+
+    <ProductCategoryType productCategoryTypeId="CATALOG_CATEGORY" description="Catalog Category"/>
+    <ProductCategoryType productCategoryTypeId="SEARCH_CATEGORY" description="Search Category"/>
+    <ProductCategoryType productCategoryTypeId="TAX_CATEGORY" description="Tax Category"/>
+
+    <ProductFeatureType productFeatureTypeId="MEMORY" description="Memory Capacity"/>
+    <ProductFeatureType productFeatureTypeId="COLOR" description="Color"/>
+
 </entity-engine-xml>

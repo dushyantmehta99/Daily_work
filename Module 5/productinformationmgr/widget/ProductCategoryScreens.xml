@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+
+<screens xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://ofbiz.apache.org/Widget-Screen" xsi:schemaLocation="http://ofbiz.apache.org/Widget-Screen http://ofbiz.apache.org/dtds/widget-screen.xsd">
+
+    <screen name="ProductCategoryTypes">
+        <section>
+            <actions>
+                <set field="headerItem" value="categories"/>
+                <set field="titleProperty" value="Product Category Types"/>
+                <entity-condition entity-name="ProductCategoryType" list="productCategoryTypeList">
+                    <order-by field-name="productCategoryTypeId"/>
+                </entity-condition>
+            </actions>
+            <widgets>
+                <decorator-screen name="ProductinformationmgrCommonDecorator" location="${parameters.mainDecoratorLocation}">
+                    <decorator-section name="body">
+                        <screenlet title="Product Category Types">
+                            <container style="button-bar">
+                                <link target="EditProductCategoryType" text="Create New Category Type" style="buttontext create"/>
+                            </container>
+                            <include-form name="ListProductCategoryType" location="component://productinformationmgr/widget/ProductCategoryForms.xml"/>
+                        </screenlet>
+                    </decorator-section>
+                </decorator-screen>
+            </widgets>
+        </section>
+    </screen>
+
+    <screen name="EditProductCategoryType">
+        <section>
+            <actions>
+                <set field="headerItem" value="categories"/>
+                <set field="titleProperty" value="Edit Product Category Type"/>
+                <set field="productCategoryTypeId" from-field="parameters.productCategoryTypeId"/>
+                <entity-one entity-name="ProductCategoryType" value-field="productCategoryType"/>
+            </actions>
+            <widgets>
+                <decorator-screen name="ProductinformationmgrCommonDecorator" location="${parameters.mainDecoratorLocation}">
+                    <decorator-section name="body">
+                        <screenlet title="Category Type Detail">
+                            <include-form name="EditProductCategoryType" location="component://productinformationmgr/widget/ProductCategoryForms.xml"/>
+                        </screenlet>
+                    </decorator-section>
+                </decorator-screen>
+            </widgets>
+        </section>
+    </screen>
+
+    <screen name="ProductCategories">
+        <section>
+            <actions>
+                <set field="headerItem" value="categories"/>
+                <set field="titleProperty" value="Product Categories"/>
+                <entity-condition entity-name="ProductCategory" list="productCategoryList">
+                    <order-by field-name="productCategoryId"/>
+                </entity-condition>
+            </actions>
+            <widgets>
+                <decorator-screen name="ProductinformationmgrCommonDecorator" location="${parameters.mainDecoratorLocation}">
+                    <decorator-section name="body">
+                        <screenlet title="Product Categories">
+                            <container style="button-bar">
+                                <link target="EditProductCategory" text="Create New Category" style="buttontext create"/>
+                            </container>
+                            <include-form name="ListProductCategory" location="component://productinformationmgr/widget/ProductCategoryForms.xml"/>
+                        </screenlet>
+                    </decorator-section>
+                </decorator-screen>
+            </widgets>
+        </section>
+    </screen>
+
+    <screen name="EditProductCategory">
+        <section>
+            <actions>
+                <set field="headerItem" value="categories"/>
+                <set field="titleProperty" value="Edit Product Category"/>
+                <set field="productCategoryId" from-field="parameters.productCategoryId"/>
+                <entity-one entity-name="ProductCategory" value-field="productCategory"/>
+            </actions>
+            <widgets>
+                <decorator-screen name="ProductinformationmgrCommonDecorator" location="${parameters.mainDecoratorLocation}">
+                    <decorator-section name="body">
+                        <screenlet title="Category Detail">
+                            <include-form name="EditProductCategory" location="component://productinformationmgr/widget/ProductCategoryForms.xml"/>
+                        </screenlet>
+                    </decorator-section>
+                </decorator-screen>
+            </widgets>
+        </section>
+    </screen>
+
+</screens>

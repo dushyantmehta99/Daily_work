@@ -20,26 +20,10 @@ under the License.
 
 <site-conf xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xmlns="http://ofbiz.apache.org/Site-Conf" xsi:schemaLocation="http://ofbiz.apache.org/Site-Conf http://ofbiz.apache.org/dtds/site-conf.xsd">
-    <!-- The controller elements that are common to all OFBiz components
-         can be found in the following xml file. A component can override the
-         elements found in the common-controller.xml file. -->
     <include location="component://common/webcommon/WEB-INF/common-controller.xml"/>
 
     <description>Productinformationmgr Component Site Configuration File</description>
 
-    <!-- Events to run on every request before security (chains exempt) -->
-    <!--
-    <preprocessor>
-    </preprocessor>
-    -->
-    <!-- Events to run on every request after all other processing (chains exempt) -->
-    <!--
-    <postprocessor>
-        <event name="test" type="java" path="org.apache.ofbiz.webapp.event.TestEvent" invoke="test"/>
-    </postprocessor>
-    -->
-
-    <!-- Request Mappings -->
     <request-map uri="main">
         <security https="true" auth="true"/>
         <response name="success" type="view" value="main"/>
@@ -48,8 +32,224 @@ under the License.
         <security https="true" auth="true"/>
         <response name="success" type="view" value="ProductList"/>
     </request-map>
+    <request-map uri="EditProduct">
+        <security https="true" auth="true"/>
+        <response name="success" type="view" value="EditProduct"/>
+    </request-map>
+    <request-map uri="createProduct">
+        <security https="true" auth="true"/>
+        <event type="service" invoke="createProduct"/>
+        <response name="success" type="view" value="EditProduct"/>
+        <response name="error" type="view" value="EditProduct"/>
+    </request-map>
+    <request-map uri="updateProduct">
+        <security https="true" auth="true"/>
+        <event type="service" invoke="updateProduct"/>
+        <response name="success" type="view" value="EditProduct"/>
+        <response name="error" type="view" value="EditProduct"/>
+    </request-map>
+    <request-map uri="deleteProduct">
+        <security https="true" auth="true"/>
+        <event type="service" invoke="deleteProduct"/>
+        <response name="success" type="view" value="ProductList"/>
+        <response name="error" type="view" value="ProductList"/>
+    </request-map>
 
-    <!-- View Mappings -->
+    <request-map uri="createProductContent">
+        <security https="true" auth="true"/>
+        <event type="service" invoke="createProductContent"/>
+        <response name="success" type="view" value="EditProduct"/>
+        <response name="error" type="view" value="EditProduct"/>
+    </request-map>
+    <request-map uri="deleteProductContent">
+        <security https="true" auth="true"/>
+        <event type="service" invoke="deleteProductContent"/>
+        <response name="success" type="view" value="EditProduct"/>
+        <response name="error" type="view" value="EditProduct"/>
+    </request-map>
+
+    <request-map uri="createProductPrice">
+        <security https="true" auth="true"/>
+        <event type="service" invoke="createProductPrice"/>
+        <response name="success" type="view" value="EditProduct"/>
+        <response name="error" type="view" value="EditProduct"/>
+    </request-map>
+    <request-map uri="deleteProductPrice">
+        <security https="true" auth="true"/>
+        <event type="service" invoke="deleteProductPrice"/>
+        <response name="success" type="view" value="EditProduct"/>
+        <response name="error" type="view" value="EditProduct"/>
+    </request-map>
+
+    <request-map uri="createProductDimension">
+        <security https="true" auth="true"/>
+        <event type="service" invoke="createProductDimension"/>
+        <response name="success" type="view" value="EditProduct"/>
+        <response name="error" type="view" value="EditProduct"/>
+    </request-map>
+    <request-map uri="deleteProductDimension">
+        <security https="true" auth="true"/>
+        <event type="service" invoke="deleteProductDimension"/>
+        <response name="success" type="view" value="EditProduct"/>
+        <response name="error" type="view" value="EditProduct"/>
+    </request-map>
+
+    <request-map uri="createProductAssoc">
+        <security https="true" auth="true"/>
+        <event type="service" invoke="createProductAssoc"/>
+        <response name="success" type="view" value="EditProduct"/>
+        <response name="error" type="view" value="EditProduct"/>
+    </request-map>
+    <request-map uri="deleteProductAssoc">
+        <security https="true" auth="true"/>
+        <event type="service" invoke="deleteProductAssoc"/>
+        <response name="success" type="view" value="EditProduct"/>
+        <response name="error" type="view" value="EditProduct"/>
+    </request-map>
+
+    <request-map uri="createProductCategoryMember">
+        <security https="true" auth="true"/>
+        <event type="service" invoke="createProductCategoryMember"/>
+        <response name="success" type="view" value="EditProduct"/>
+        <response name="error" type="view" value="EditProduct"/>
+    </request-map>
+    <request-map uri="deleteProductCategoryMember">
+        <security https="true" auth="true"/>
+        <event type="service" invoke="deleteProductCategoryMember"/>
+        <response name="success" type="view" value="EditProduct"/>
+        <response name="error" type="view" value="EditProduct"/>
+    </request-map>
+
+    <request-map uri="createProductFeatureAppl">
+        <security https="true" auth="true"/>
+        <event type="service" invoke="createProductFeatureAppl"/>
+        <response name="success" type="view" value="EditProduct"/>
+        <response name="error" type="view" value="EditProduct"/>
+    </request-map>
+    <request-map uri="deleteProductFeatureAppl">
+        <security https="true" auth="true"/>
+        <event type="service" invoke="deleteProductFeatureAppl"/>
+        <response name="success" type="view" value="EditProduct"/>
+        <response name="error" type="view" value="EditProduct"/>
+    </request-map>
+
+    <request-map uri="ProductCategoryTypes">
+        <security https="true" auth="true"/>
+        <response name="success" type="view" value="ProductCategoryTypes"/>
+    </request-map>
+    <request-map uri="EditProductCategoryType">
+        <security https="true" auth="true"/>
+        <response name="success" type="view" value="EditProductCategoryType"/>
+    </request-map>
+    <request-map uri="createProductCategoryType">
+        <security https="true" auth="true"/>
+        <event type="service" invoke="createProductCategoryType"/>
+        <response name="success" type="view" value="EditProductCategoryType"/>
+        <response name="error" type="view" value="EditProductCategoryType"/>
+    </request-map>
+    <request-map uri="updateProductCategoryType">
+        <security https="true" auth="true"/>
+        <event type="service" invoke="updateProductCategoryType"/>
+        <response name="success" type="view" value="EditProductCategoryType"/>
+        <response name="error" type="view" value="EditProductCategoryType"/>
+    </request-map>
+    <request-map uri="deleteProductCategoryType">
+        <security https="true" auth="true"/>
+        <event type="service" invoke="deleteProductCategoryType"/>
+        <response name="success" type="view" value="ProductCategoryTypes"/>
+        <response name="error" type="view" value="ProductCategoryTypes"/>
+    </request-map>
+
+    <request-map uri="ProductCategories">
+        <security https="true" auth="true"/>
+        <response name="success" type="view" value="ProductCategories"/>
+    </request-map>
+    <request-map uri="EditProductCategory">
+        <security https="true" auth="true"/>
+        <response name="success" type="view" value="EditProductCategory"/>
+    </request-map>
+    <request-map uri="createProductCategory">
+        <security https="true" auth="true"/>
+        <event type="service" invoke="createProductCategory"/>
+        <response name="success" type="view" value="EditProductCategory"/>
+        <response name="error" type="view" value="EditProductCategory"/>
+    </request-map>
+    <request-map uri="updateProductCategory">
+        <security https="true" auth="true"/>
+        <event type="service" invoke="updateProductCategory"/>
+        <response name="success" type="view" value="EditProductCategory"/>
+        <response name="error" type="view" value="EditProductCategory"/>
+    </request-map>
+    <request-map uri="deleteProductCategory">
+        <security https="true" auth="true"/>
+        <event type="service" invoke="deleteProductCategory"/>
+        <response name="success" type="view" value="ProductCategories"/>
+        <response name="error" type="view" value="ProductCategories"/>
+    </request-map>
+
+    <request-map uri="ProductFeatureTypes">
+        <security https="true" auth="true"/>
+        <response name="success" type="view" value="ProductFeatureTypes"/>
+    </request-map>
+    <request-map uri="EditProductFeatureType">
+        <security https="true" auth="true"/>
+        <response name="success" type="view" value="EditProductFeatureType"/>
+    </request-map>
+    <request-map uri="createProductFeatureType">
+        <security https="true" auth="true"/>
+        <event type="service" invoke="createProductFeatureType"/>
+        <response name="success" type="view" value="EditProductFeatureType"/>
+        <response name="error" type="view" value="EditProductFeatureType"/>
+    </request-map>
+    <request-map uri="updateProductFeatureType">
+        <security https="true" auth="true"/>
+        <event type="service" invoke="updateProductFeatureType"/>
+        <response name="success" type="view" value="EditProductFeatureType"/>
+        <response name="error" type="view" value="EditProductFeatureType"/>
+    </request-map>
+    <request-map uri="deleteProductFeatureType">
+        <security https="true" auth="true"/>
+        <event type="service" invoke="deleteProductFeatureType"/>
+        <response name="success" type="view" value="ProductFeatureTypes"/>
+        <response name="error" type="view" value="ProductFeatureTypes"/>
+    </request-map>
+
+    <request-map uri="ProductFeatures">
+        <security https="true" auth="true"/>
+        <response name="success" type="view" value="ProductFeatures"/>
+    </request-map>
+    <request-map uri="EditProductFeature">
+        <security https="true" auth="true"/>
+        <response name="success" type="view" value="EditProductFeature"/>
+    </request-map>
+    <request-map uri="createProductFeature">
+        <security https="true" auth="true"/>
+        <event type="service" invoke="createProductFeature"/>
+        <response name="success" type="view" value="EditProductFeature"/>
+        <response name="error" type="view" value="EditProductFeature"/>
+    </request-map>
+    <request-map uri="updateProductFeature">
+        <security https="true" auth="true"/>
+        <event type="service" invoke="updateProductFeature"/>
+        <response name="success" type="view" value="EditProductFeature"/>
+        <response name="error" type="view" value="EditProductFeature"/>
+    </request-map>
+    <request-map uri="deleteProductFeature">
+        <security https="true" auth="true"/>
+        <event type="service" invoke="deleteProductFeature"/>
+        <response name="success" type="view" value="ProductFeatures"/>
+        <response name="error" type="view" value="ProductFeatures"/>
+    </request-map>
+
     <view-map name="main" type="screen" page="component://productinformationmgr/widget/ProductinformationmgrScreens.xml#main"/>
     <view-map name="ProductList" type="screen" page="component://productinformationmgr/widget/ProductScreens.xml#ProductList"/>
+    <view-map name="EditProduct" type="screen" page="component://productinformationmgr/widget/ProductScreens.xml#EditProduct"/>
+    <view-map name="ProductCategoryTypes" type="screen" page="component://productinformationmgr/widget/ProductCategoryScreens.xml#ProductCategoryTypes"/>
+    <view-map name="EditProductCategoryType" type="screen" page="component://productinformationmgr/widget/ProductCategoryScreens.xml#EditProductCategoryType"/>
+    <view-map name="ProductCategories" type="screen" page="component://productinformationmgr/widget/ProductCategoryScreens.xml#ProductCategories"/>
+    <view-map name="EditProductCategory" type="screen" page="component://productinformationmgr/widget/ProductCategoryScreens.xml#EditProductCategory"/>
+    <view-map name="ProductFeatureTypes" type="screen" page="component://productinformationmgr/widget/ProductFeatureScreens.xml#ProductFeatureTypes"/>
+    <view-map name="EditProductFeatureType" type="screen" page="component://productinformationmgr/widget/ProductFeatureScreens.xml#EditProductFeatureType"/>
+    <view-map name="ProductFeatures" type="screen" page="component://productinformationmgr/widget/ProductFeatureScreens.xml#ProductFeatures"/>
+    <view-map name="EditProductFeature" type="screen" page="component://productinformationmgr/widget/ProductFeatureScreens.xml#EditProductFeature"/>
 </site-conf>

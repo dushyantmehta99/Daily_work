@@ -21,39 +21,219 @@ under the License.
 <forms xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xmlns="http://ofbiz.apache.org/Widget-Form" xsi:schemaLocation="http://ofbiz.apache.org/Widget-Form http://ofbiz.apache.org/dtds/widget-form.xsd">
 
-    <!-- List form to display all products -->
     <form name="ProductListForm" type="list" list-name="productList"
           odd-row-style="alternate-row" default-table-style="basic-table hover-bar">
-        <field name="productId" title="Product ID"><display/></field>
+        <field name="productId" widget-style="buttontext">
+            <hyperlink description="${productId}" target="EditProduct">
+                <parameter param-name="productId"/>
+            </hyperlink>
+        </field>
         <field name="productName" title="Product Name"><display/></field>
-        <field name="productTypeId" title="Product Type"><display/></field>
+        <field name="productTypeEnumId" title="Product Type"><display/></field>
         <field name="isVirtual" title="Virtual?"><display/></field>
         <field name="isVariant" title="Variant?"><display/></field>
+        <field name="fromDate" title="From Date"><display type="date-time"/></field>
+        <field name="deleteLink" title=" " widget-style="buttontext">
+            <hyperlink description="${uiLabelMap.CommonDelete}" target="deleteProduct">
+                <parameter param-name="productId"/>
+            </hyperlink>
+        </field>
     </form>
 
-    <!-- Form to create a new product (moved from ProductMenus.xml where it was misplaced) -->
-    <form name="CreateProductForm" type="single">
-        <field name="productId"><text/></field>
-        <field name="productName"><text/></field>
-        <field name="productTypeId">
+    <form name="EditProduct" type="single" target="updateProduct" default-map-name="product"
+          header-row-style="header-row" default-table-style="basic-table">
+        <alt-target use-when="product==null" target="createProduct"/>
+        <field name="productId" title="Product ID"><text/></field>
+        <field name="productName" title="Product Name"><text size="30"/></field>
+        <field name="productTypeEnumId" title="Product Type">
             <drop-down>
-                <option key="FINISHED_GOOD" description="Finished Good"/>
-                <option key="GOOD" description="Good"/>
-                <option key="SERVICE" description="Service"/>
+                <entity-options entity-name="Enumeration" description="${description}" key-field-name="enumId">
+                    <entity-constraint name="enumTypeId" operator="equals" value="PROD_TYPE"/>
+                    <entity-order-by field-name="enumId"/>
+                </entity-options>
             </drop-down>
         </field>
-        <field name="isVirtual">
-            <drop-down>
-                <option key="Y" description="Yes"/>
-                <option key="N" description="No"/>
-            </drop-down>
-        </field>
-        <field name="isVariant">
+        <field name="isVirtual" title="Virtual?">
             <drop-down>
                 <option key="Y" description="Yes"/>
                 <option key="N" description="No"/>
             </drop-down>
         </field>
+        <field name="isVariant" title="Variant?">
+            <drop-down>
+                <option key="Y" description="Yes"/>
+                <option key="N" description="No"/>
+            </drop-down>
+        </field>
+        <field name="fromDate" title="From Date"><date-time/></field>
+        <field name="submitButton" title="${uiLabelMap.CommonSave}"><submit button-type="button"/></field>
+    </form>
+
+    <form name="ListProductContent" type="list" list-name="productContentList"
+          odd-row-style="alternate-row" default-table-style="basic-table">
+        <field name="productContentId"><display/></field>
+        <field name="productContentTypeEnumId" title="Content Type"><display/></field>
+        <field name="contentLocation" title="Location"><display/></field>
+        <field name="deleteLink" title=" " widget-style="buttontext">
+            <hyperlink description="${uiLabelMap.CommonDelete}" target="deleteProductContent">
+                <parameter param-name="productContentId"/>
+            </hyperlink>
+        </field>
+    </form>
+    <form name="AddProductContent" type="single" target="createProductContent" default-table-style="basic-table">
+        <field name="productId"><hidden/></field>
+        <field name="productContentTypeEnumId" title="Content Type">
+            <drop-down>
+                <entity-options entity-name="Enumeration" description="${description}" key-field-name="enumId">
+                    <entity-constraint name="enumTypeId" operator="equals" value="PROD_CONTENT_TYPE"/>
+                </entity-options>
+            </drop-down>
+        </field>
+        <field name="contentLocation" title="Location"><text size="40"/></field>
+        <field name="submitButton" title="${uiLabelMap.CommonAdd}"><submit button-type="button"/></field>
+    </form>
+
+    <form name="ListProductPrice" type="list" list-name="productPriceList"
+          odd-row-style="alternate-row" default-table-style="basic-table">
+        <field name="productPriceId"><display/></field>
+        <field name="priceTypeEnumId" title="Price Type"><display/></field>
+        <field name="price"><display/></field>
+        <field name="deleteLink" title=" " widget-style="buttontext">
+            <hyperlink description="${uiLabelMap.CommonDelete}" target="deleteProductPrice">
+                <parameter param-name="productPriceId"/>
+            </hyperlink>
+        </field>
+    </form>
+    <form name="AddProductPrice" type="single" target="createProductPrice" default-table-style="basic-table">
+        <field name="productId"><hidden/></field>
+        <field name="priceTypeEnumId" title="Price Type">
+            <drop-down>
+                <entity-options entity-name="Enumeration" description="${description}" key-field-name="enumId">
+                    <entity-constraint name="enumTypeId" operator="equals" value="PROD_PRICE_TYPE"/>
+                </entity-options>
+            </drop-down>
+        </field>
+        <field name="price" title="Price"><text size="10"/></field>
+        <field name="submitButton" title="${uiLabelMap.CommonAdd}"><submit button-type="button"/></field>
+    </form>
+
+    <form name="ListProductDimension" type="list" list-name="productDimensionList"
+          odd-row-style="alternate-row" default-table-style="basic-table">
+        <field name="dimensionTypeEnumId" title="Dimension Type"><display/></field>
+        <field name="dimensionValue" title="Value"><display/></field>
+        <field name="valueUomId" title="UOM"><display/></field>
+        <field name="deleteLink" title=" " widget-style="buttontext">
+            <hyperlink description="${uiLabelMap.CommonDelete}" target="deleteProductDimension">
+                <parameter param-name="productId"/>
+                <parameter param-name="dimensionTypeEnumId"/>
+            </hyperlink>
+        </field>
+    </form>
+    <form name="AddProductDimension" type="single" target="createProductDimension" default-table-style="basic-table">
+        <field name="productId"><hidden/></field>
+        <field name="dimensionTypeEnumId" title="Dimension Type">
+            <drop-down>
+                <entity-options entity-name="Enumeration" description="${description}" key-field-name="enumId">
+                    <entity-constraint name="enumTypeId" operator="equals" value="PROD_DIM_TYPE"/>
+                </entity-options>
+            </drop-down>
+        </field>
+        <field name="dimensionValue" title="Value"><text size="10"/></field>
+        <field name="valueUomId" title="UOM"><text size="10"/></field>
+        <field name="submitButton" title="${uiLabelMap.CommonAdd}"><submit button-type="button"/></field>
+    </form>
+
+    <form name="ListProductAssoc" type="list" list-name="productAssocList"
+          odd-row-style="alternate-row" default-table-style="basic-table">
+        <field name="toProductId" title="To Product"><display/></field>
+        <field name="productAssocTypeEnumId" title="Assoc Type"><display/></field>
+        <field name="fromDate" title="From Date"><display type="date-time"/></field>
+        <field name="deleteLink" title=" " widget-style="buttontext">
+            <hyperlink description="${uiLabelMap.CommonDelete}" target="deleteProductAssoc">
+                <parameter param-name="productId"/>
+                <parameter param-name="toProductId"/>
+                <parameter param-name="productAssocTypeEnumId"/>
+                <parameter param-name="fromDate"/>
+            </hyperlink>
+        </field>
+    </form>
+    <form name="AddProductAssoc" type="single" target="createProductAssoc" default-table-style="basic-table">
+        <field name="productId"><hidden/></field>
+        <field name="toProductId" title="To Product">
+            <drop-down>
+                <entity-options entity-name="Product" description="${productId} - ${productName}" key-field-name="productId">
+                    <entity-order-by field-name="productId"/>
+                </entity-options>
+            </drop-down>
+        </field>
+        <field name="productAssocTypeEnumId" title="Assoc Type">
+            <drop-down>
+                <entity-options entity-name="Enumeration" description="${description}" key-field-name="enumId">
+                    <entity-constraint name="enumTypeId" operator="equals" value="PROD_ASSOC_TYPE"/>
+                </entity-options>
+            </drop-down>
+        </field>
+        <field name="fromDate" title="From Date"><date-time default-value="${nowTimestamp}"/></field>
+        <field name="submitButton" title="${uiLabelMap.CommonAdd}"><submit button-type="button"/></field>
+    </form>
+
+    <form name="ListProductCategoryMember" type="list" list-name="productCategoryMemberList"
+          odd-row-style="alternate-row" default-table-style="basic-table">
+        <field name="productCategoryId" title="Category"><display/></field>
+        <field name="fromDate" title="From Date"><display type="date-time"/></field>
+        <field name="thruDate" title="Thru Date"><display type="date-time"/></field>
+        <field name="deleteLink" title=" " widget-style="buttontext">
+            <hyperlink description="${uiLabelMap.CommonDelete}" target="deleteProductCategoryMember">
+                <parameter param-name="productId"/>
+                <parameter param-name="productCategoryId"/>
+                <parameter param-name="fromDate"/>
+            </hyperlink>
+        </field>
+    </form>
+    <form name="AddProductCategoryMember" type="single" target="createProductCategoryMember" default-table-style="basic-table">
+        <field name="productId"><hidden/></field>
+        <field name="productCategoryId" title="Category">
+            <drop-down>
+                <entity-options entity-name="ProductCategory" description="${categoryName} (${productCategoryId})" key-field-name="productCategoryId">
+                    <entity-order-by field-name="productCategoryId"/>
+                </entity-options>
+            </drop-down>
+        </field>
+        <field name="fromDate" title="From Date"><date-time default-value="${nowTimestamp}"/></field>
+        <field name="submitButton" title="${uiLabelMap.CommonAdd}"><submit button-type="button"/></field>
+    </form>
+
+    <form name="ListProductFeatureAppl" type="list" list-name="productFeatureApplList"
+          odd-row-style="alternate-row" default-table-style="basic-table">
+        <field name="productFeatureId" title="Feature"><display/></field>
+        <field name="productFeatureApplTypeEnumId" title="Applicability"><display/></field>
+        <field name="fromDate" title="From Date"><display type="date-time"/></field>
+        <field name="deleteLink" title=" " widget-style="buttontext">
+            <hyperlink description="${uiLabelMap.CommonDelete}" target="deleteProductFeatureAppl">
+                <parameter param-name="productId"/>
+                <parameter param-name="productFeatureId"/>
+                <parameter param-name="fromDate"/>
+            </hyperlink>
+        </field>
+    </form>
+    <form name="AddProductFeatureAppl" type="single" target="createProductFeatureAppl" default-table-style="basic-table">
+        <field name="productId"><hidden/></field>
+        <field name="productFeatureId" title="Feature">
+            <drop-down>
+                <entity-options entity-name="ProductFeature" description="${description} (${productFeatureId})" key-field-name="productFeatureId">
+                    <entity-order-by field-name="productFeatureId"/>
+                </entity-options>
+            </drop-down>
+        </field>
+        <field name="productFeatureApplTypeEnumId" title="Applicability">
+            <drop-down>
+                <entity-options entity-name="Enumeration" description="${description}" key-field-name="enumId">
+                    <entity-constraint name="enumTypeId" operator="equals" value="PROD_FEAT_APPL_TYPE"/>
+                </entity-options>
+            </drop-down>
+        </field>
+        <field name="fromDate" title="From Date"><date-time default-value="${nowTimestamp}"/></field>
+        <field name="submitButton" title="${uiLabelMap.CommonAdd}"><submit button-type="button"/></field>
     </form>
 
 </forms>

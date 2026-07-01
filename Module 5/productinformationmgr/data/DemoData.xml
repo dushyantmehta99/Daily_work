@@ -20,34 +20,4 @@ under the License.
 
 <entity-engine-xml>
 
-    <!-- Virtual Product: Smartphone -->
-    <Product productId="PROD10000"
-             productName="Smartphone"
-             productTypeId="FINISHED_GOOD"
-             isVirtual="Y"
-             isVariant="N"/>
-
-    <!-- Variant Product: Smartphone 128GB -->
-    <Product productId="PROD10001"
-             productName="Smartphone-128GB"
-             productTypeId="FINISHED_GOOD"
-             isVirtual="N"
-             isVariant="Y"/>
-
-    <!-- Link variant to virtual product -->
-    <ProductAssoc productId="PROD10000" productIdTo="PROD10001"
-                  productAssocTypeId="PRODUCT_VARIANT" fromDate="2026-01-01 00:00:00.0"/>
-
-    <!-- Price for the virtual product (fixed: was referencing non-existent PROD_MANUF) -->
-    <ProductPrice productId="PROD10000" productPriceTypeId="DEFAULT_PRICE"
-                  productPricePurposeId="PURCHASE" currencyUomId="USD"
-                  productStoreGroupId="_NA_" fromDate="2026-01-01 00:00:00.0"
-                  price="455.99" taxInPrice="N"/>
-
-    <!-- Price for the variant -->
-    <ProductPrice productId="PROD10001" productPriceTypeId="DEFAULT_PRICE"
-                  productPricePurposeId="PURCHASE" currencyUomId="USD"
-                  productStoreGroupId="_NA_" fromDate="2026-01-01 00:00:00.0"
-                  price="455.99" taxInPrice="N"/>
-
 </entity-engine-xml>

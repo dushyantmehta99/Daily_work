@@ -23,5 +23,17 @@ under the License.
         <menu-item name="products" title="Products">
             <link target="products"/>
         </menu-item>
+        <menu-item name="categories" title="Categories">
+            <link target="ProductCategories"/>
+        </menu-item>
+        <menu-item name="categoryTypes" title="Category Types">
+            <link target="ProductCategoryTypes"/>
+        </menu-item>
+        <menu-item name="features" title="Features">
+            <link target="ProductFeatures"/>
+        </menu-item>
+        <menu-item name="featureTypes" title="Feature Types">
+            <link target="ProductFeatureTypes"/>
+        </menu-item>
     </menu>
 </menus>
