@@ -340,8 +340,10 @@ The retailer has set a threshold value for products that are sold online, in ord
 
 ```sql
 SELECT
-    product_id,
-    SUM(minimum_stock) AS total_minimum_stock
-FROM product_facility
-GROUP BY product_id;
+    pf.product_id,
+    pf.minimum_stock AS threshold
+FROM product_facility pf
+JOIN facility f
+    ON pf.facility_id = f.facility_id
+   AND f.facility_type_id = 'CONFIGURATION';
 ```
