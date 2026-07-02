@@ -288,17 +288,22 @@ BOPIS (Buy Online, Pickup In Store) is a key retail strategy. Finance wants to k
 
 ```sql
 SELECT
-    COUNT(DISTINCT oh.order_id) AS total_orders,
+    COUNT(*) AS total_orders,
     SUM(oh.grand_total) AS total_revenue
 FROM order_header oh
-JOIN order_item_ship_group oisg
-    ON oh.order_id = oisg.order_id
-JOIN shipment s
-    ON s.primary_order_id = oh.order_id
-WHERE oisg.shipment_method_type_id = 'STOREPICKUP'
-  AND s.status_id = 'SHIPMENT_SHIPPED'
-  AND s.estimated_ship_date >= '2025-01-01'
-  AND s.estimated_ship_date < '2026-01-01';
+WHERE oh.status_id = 'ORDER_COMPLETED'
+  AND oh.order_date >= '2025-01-01'
+  AND oh.order_date < '2026-01-01'
+  AND EXISTS (
+        SELECT 1
+        FROM order_item_ship_group oisg
+        JOIN shipment s
+             ON s.primary_order_id = oisg.order_id
+            AND s.primary_ship_group_seq_id = oisg.ship_group_seq_id
+        WHERE oisg.order_id = oh.order_id
+          AND oisg.shipment_method_type_id = 'STOREPICKUP'
+          AND s.status_id = 'SHIPMENT_SHIPPED'
+    );
 ```
 
 ---
