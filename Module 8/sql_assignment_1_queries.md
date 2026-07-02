@@ -247,10 +247,7 @@ LEFT JOIN shipment s
     ON oisg.ship_group_seq_id = s.primary_ship_group_seq_id
    AND oisg.order_id = s.primary_order_id
 
-WHERE opp.status_id IN (
-        'PAYMENT_AUTHORIZED',
-        'PAYMENT_SETTLED'
-      )
+WHERE opp.status_id = 'PAYMENT_SETTLED'
   AND (
         s.shipment_id IS NULL
         OR s.status_id <> 'SHIPMENT_SHIPPED'
