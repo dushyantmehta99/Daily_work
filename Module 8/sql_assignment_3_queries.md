@@ -213,29 +213,7 @@ Identify which facility (store) handled the highest volume of "one-day shipping"
 - `TOTAL_ONE_DAY_SHIP_ORDERS`
 - `REPORTING_PERIOD`
 
-```sql
-SELECT
-    ois.facility_id,
-    f.facility_name,
-    COUNT(oi.order_id) AS total_order_items
-FROM order_item oi
-JOIN order_item_ship_group ois
-    ON ois.order_id = oi.order_id
-    AND ois.ship_group_seq_id = oi.ship_group_seq_id
-LEFT JOIN facility f ON ois.facility_id = f.facility_id
-JOIN order_status os
-    ON os.order_id = oi.order_id
-    AND os.status_id = 'ITEM_COMPLETED'
-WHERE ois.shipment_method_type_id = 'NEXT_DAY'
-  AND f.facility_type_id NOT IN (
-      SELECT facility_type_id
-      FROM facility_type
-      WHERE parent_type_id = 'VIRTUAL_FACILITY'
-  )
-  AND oi.status_id = 'ITEM_COMPLETED'
-  AND os.status_datetime >= NOW() - INTERVAL 30 DAY
-GROUP BY ois.facility_id, f.facility_name
-ORDER BY total_order_items DESC;
+```
 ```
 
 ---
@@ -346,27 +324,7 @@ When transferring stock between facilities, the system should reserve inventory.
 - `TRANSFER_DATE`
 - `STATUS`
 
-```sql
-SELECT
-    oh.order_id AS transfer_order_id,
-    oh.origin_facility_id AS from_facility_id,
-    ois.facility_id AS to_facility_id,
-    oi.product_id,
-    oi.quantity AS requested_quantity,
-    0 AS reserved_quantity,
-    oh.order_date AS transfer_date,
-    oh.status_id AS status
-FROM order_header oh
-JOIN order_item oi ON oi.order_id = oh.order_id
-JOIN order_item_ship_group ois ON ois.order_id = oh.order_id
-LEFT JOIN order_item_ship_grp_inv_res otshir
-    ON otshir.order_id = ois.order_id
-    AND otshir.ship_group_seq_id = ois.ship_group_seq_id
-    AND otshir.order_item_seq_id = oi.order_item_seq_id
-WHERE oh.order_type_id = 'TRANSFER_ORDER'
-  AND otshir.reserved_datetime IS NULL
-  AND oh.status_id = 'ORDER_APPROVED'
-ORDER BY oh.order_id;
+```
 ```
 
 ---
