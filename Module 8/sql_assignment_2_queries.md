@@ -103,48 +103,7 @@ Merchandising teams need to identify the best-selling product(s) in a specific r
 - `CITY` / `STATE` (within New York region)
 - `REVENUE`
 
-```sql
-SELECT 
-    sales.product_id,
-    sales.internal_name,
-    sales.city,
-    sales.state_province_geo_id,
-    sales.quantity,
-    sales.revenue
-FROM (
-    SELECT
-        oi.product_id,
-        p.internal_name,
-        pa.city,
-        pa.state_province_geo_id,
-        SUM(oi.quantity) AS quantity,
-        SUM(oi.quantity * oi.unit_price) AS revenue
-    FROM order_header oh
-    LEFT JOIN order_item oi ON oh.order_id = oi.order_id
-    LEFT JOIN product p ON p.product_id = oi.product_id
-    LEFT JOIN order_role orr ON oh.order_id = orr.order_id AND orr.role_type_id = 'SHIP_TO_CUSTOMER'
-    LEFT JOIN order_contact_mech ocm ON oh.order_id = ocm.order_id AND ocm.contact_mech_purpose_type_id = 'SHIPPING_LOCATION'
-    LEFT JOIN postal_address pa ON pa.contact_mech_id = ocm.contact_mech_id
-    WHERE pa.state_province_geo_id = 'NY'
-    GROUP BY oi.product_id, p.internal_name, pa.city, pa.state_province_geo_id
-) sales
-JOIN (
-    SELECT city, MAX(quantity) AS max_qty
-    FROM (
-        SELECT
-            pa.city,
-            oi.product_id,
-            SUM(oi.quantity) AS quantity
-        FROM order_header oh
-        LEFT JOIN order_item oi ON oh.order_id = oi.order_id
-        LEFT JOIN order_role orr ON oh.order_id = orr.order_id AND orr.role_type_id = 'SHIP_TO_CUSTOMER'
-        LEFT JOIN order_contact_mech ocm ON oh.order_id = ocm.order_id AND ocm.contact_mech_purpose_type_id = 'SHIPPING_LOCATION'
-        LEFT JOIN postal_address pa ON pa.contact_mech_id = ocm.contact_mech_id
-        WHERE pa.state_province_geo_id = 'NY'
-        GROUP BY oi.product_id, pa.city
-    ) t
-    GROUP BY city
-) max_sales ON sales.city = max_sales.city AND sales.quantity = max_sales.max_qty;
+```
 ```
 
 ---
