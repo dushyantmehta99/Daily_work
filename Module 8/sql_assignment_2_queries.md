@@ -64,29 +64,7 @@ Companies often want region-specific analysis to plan local marketing, staffing,
 - `ORDER_STATUS`
 
 ```sql
-SELECT
-    oh.order_id,
-    p.first_name,
-    p.last_name,
-    oh.grand_total,
-    pa.address1,
-    pa.city,
-    pa.state_province_geo_id,
-    pa.postal_code,
-    pa.country_geo_id,
-    oh.status_id,
-    oh.order_date
-FROM order_header oh
-LEFT JOIN order_role orr
-    ON oh.order_id = orr.order_id
-    AND orr.role_type_id = 'SHIP_TO_CUSTOMER'
-LEFT JOIN order_contact_mech ocm
-    ON oh.order_id = ocm.order_id
-    AND ocm.contact_mech_purpose_type_id = 'SHIPPING_LOCATION'
-LEFT JOIN postal_address pa ON pa.contact_mech_id = ocm.contact_mech_id
-LEFT JOIN person p ON p.party_id = orr.party_id
-WHERE oh.status_id = 'ORDER_COMPLETED'
-  AND AND pa.city = 'New York';
+
 ```
 
 ---
