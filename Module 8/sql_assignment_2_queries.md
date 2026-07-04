@@ -86,7 +86,7 @@ LEFT JOIN order_contact_mech ocm
 LEFT JOIN postal_address pa ON pa.contact_mech_id = ocm.contact_mech_id
 LEFT JOIN person p ON p.party_id = orr.party_id
 WHERE oh.status_id = 'ORDER_COMPLETED'
-  AND pa.state_province_geo_id = 'NY';
+  AND AND pa.city = 'New York';
 ```
 
 ---
