@@ -163,21 +163,7 @@ Analyzing orders with multiple returns can identify potential fraud, chronic iss
 - `RETURN_REASON`
 - `RETURN_QUANTITY`
 
-```sql
-SELECT DISTINCT
-    ri.order_id,
-    ri.return_id,
-    rh.return_date,
-    ri.return_reason_id,
-    ri.return_quantity
-FROM return_item ri
-JOIN (
-    SELECT order_id
-    FROM return_item
-    GROUP BY order_id
-    HAVING COUNT(DISTINCT return_id) >= 2
-) fo ON fo.order_id = ri.order_id
-LEFT JOIN return_header rh ON rh.return_id = ri.return_id;
+```
 ```
 
 ---
