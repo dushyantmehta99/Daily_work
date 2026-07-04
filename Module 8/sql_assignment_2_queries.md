@@ -133,17 +133,7 @@ Warehouse managers need to track "shrinkage" such as lost or damaged inventory t
 - `TRANSACTION_DATE`
 
 ```sql
-SELECT
-    iid.inventory_item_id,
-    ii.product_id,
-    ii.facility_id,
-    SUM(iid.quantity_on_hand_diff) AS total_diff,
-    iid.reason_enum_id,
-    iid.effective_date AS transaction_date
-FROM inventory_item_detail iid
-LEFT JOIN inventory_item ii ON ii.inventory_item_id = iid.inventory_item_id
-WHERE iid.reason_enum_id IN ('VAR_DAMAGED', 'VAR_LOST')
-GROUP BY iid.inventory_item_id, ii.product_id, ii.facility_id, iid.reason_enum_id, iid.effective_date;
+
 ```
 
 ---
@@ -276,20 +266,5 @@ Marketing and sales teams want to see how many orders come from each channel (e.
 - `REPORTING_PERIOD`
 
 ```sql
-SELECT
-    SUM(oh.grand_total - IFNULL(ad.adjustments, 0)) AS total_revenue,
-    oh.sales_channel_enum_id,
-    COUNT(oh.order_id) AS total_orders,
-    MIN(oh.entry_date) AS start_date,
-    MAX(oh.entry_date) AS end_date
-FROM order_header oh
-LEFT JOIN (
-    SELECT
-        order_id,
-        SUM(amount) AS adjustments
-    FROM order_adjustment
-    GROUP BY order_id
-) ad ON ad.order_id = oh.order_id
-WHERE oh.status_id = 'ORDER_COMPLETED'
-GROUP BY oh.sales_channel_enum_id;
+
 ```
