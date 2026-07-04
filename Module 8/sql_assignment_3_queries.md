@@ -94,21 +94,7 @@ The merchandising team needs a list of orders that only have one return.
 - `FIRST_NAME`
 
 ```sql
-SELECT
-    p.party_id,
-    ri.order_id,
-    p.first_name,
-    p.last_name
-FROM return_header rh
-JOIN return_item ri ON ri.return_id = rh.return_id
-LEFT JOIN person p ON p.party_id = rh.from_party_id
-WHERE ri.order_id IN (
-    SELECT order_id
-    FROM return_item
-    GROUP BY order_id
-    HAVING COUNT(return_item_id) = 1
-)
-  AND rh.return_date BETWEEN '2026-05-01' AND '2026-06-01';
+
 ```
 
 ---
@@ -125,13 +111,7 @@ The retailer needs the total amount of items that were returned as well as how m
 - `APPEASEMENTS $ TOTAL`
 
 ```sql
-SELECT
-    COUNT(ri.return_item_id) AS total_returns,
-    SUM(ri.return_price * ri.return_quantity) AS return_total,
-    SUM(CASE WHEN ra.return_adjustment_type_id = 'Appeasement' THEN 1 ELSE 0 END) AS total_appeasements,
-    SUM(CASE WHEN ra.return_adjustment_type_id = 'Appeasement' THEN ra.amount ELSE 0 END) AS appeasement_total
-FROM return_item ri
-LEFT JOIN return_adjustment ra ON ri.return_id = ra.return_id;
+
 ```
 
 ---
