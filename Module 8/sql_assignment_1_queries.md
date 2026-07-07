@@ -168,14 +168,14 @@ JOIN product p
     ON oi.product_id = p.product_id
 LEFT JOIN order_history ohis
     ON oh.order_id = ohis.order_id
-LEFT JOIN order_item_ship_group oisg
+JOIN order_item_ship_group oisg
     ON oh.order_id = oisg.order_id
    AND oi.ship_group_seq_id = oisg.ship_group_seq_id
-LEFT JOIN facility f
+JOIN facility f
     ON oisg.facility_id = f.facility_id
 WHERE oh.status_id = 'ORDER_COMPLETED'
   AND oh.order_date >= '2023-08-01'
-  AND oh.order_date < '2023-09-01';
+  AND oh.order_date < '2026-09-01';
 ```
 
 ---
