@@ -219,27 +219,20 @@ Finance teams want to ensure revenue is recognized properly. If payment is captu
 - `SHIPMENT_STATUS`
 
 ```sql
-SELECT DISTINCT
+SELECT 
     oh.order_id,
     oh.status_id AS order_status,
     opp.status_id AS payment_status,
     s.status_id AS shipment_status
 FROM order_header oh
-
 JOIN order_payment_preference opp
     ON oh.order_id = opp.order_id
-
-LEFT JOIN order_item_ship_group oisg
-    ON oh.order_id = oisg.order_id
-
 LEFT JOIN shipment s
-    ON oisg.ship_group_seq_id = s.primary_ship_group_seq_id
-   AND oisg.order_id = s.primary_order_id
-
+    ON OH.order_id = s.primary_order_id
 WHERE opp.status_id = 'PAYMENT_SETTLED'
   AND (
         s.shipment_id IS NULL
-        OR s.status_id <> 'SHIPMENT_SHIPPED'
+        OR s.status_id = 'SHIPMENT_INPUT'
       );
 ```
 
@@ -256,11 +249,11 @@ Operations teams may want to see how orders complete across the day to schedule 
 
 ```sql
 SELECT
-    EXTRACT(HOUR FROM status_datetime) AS hour,
-    COUNT(*)
+    COUNT(*) AS total_orders,
+    EXTRACT(HOUR FROM status_datetime) AS hour
 FROM order_status
 WHERE status_id = 'ORDER_COMPLETED'
-GROUP BY EXTRACT(HOUR FROM status_datetime)
+GROUP BY hour
 ORDER BY hour;
 ```
 
