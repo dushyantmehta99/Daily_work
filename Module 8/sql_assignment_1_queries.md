@@ -18,35 +18,31 @@ The marketing team ran a campaign in June 2023 and wants to see how many new cus
 ```sql
 SELECT
     p.party_id,
-    pp.first_name,
-    pp.last_name,
-    p.created_stamp AS entry_date,
-    cm_email.info_string AS email,
-    tn.contact_number AS phone
+    per.first_name,
+    per.last_name,
+    cm.info_string AS email,
+    tn.contact_number AS phone,
+    p.created_date AS entry_date
 FROM party p
-
 JOIN party_role pr
     ON p.party_id = pr.party_id
-
-JOIN person pp
-    ON pp.party_id = p.party_id
-
-LEFT JOIN party_contact_mech pcm_email
-    ON p.party_id = pcm_email.party_id
-
-LEFT JOIN contact_mech cm_email
-    ON pcm_email.contact_mech_id = cm_email.contact_mech_id
-   AND cm_email.contact_mech_type_id = 'EMAIL_ADDRESS'
-
-LEFT JOIN party_contact_mech pcm_phone
-    ON p.party_id = pcm_phone.party_id
-
+   AND pr.role_type_id = 'CUSTOMER'
+JOIN person per
+    ON p.party_id = per.party_id
+LEFT JOIN party_contact_mech_purpose pcmp_email
+    ON p.party_id = pcmp_email.party_id
+   AND pcmp_email.contact_mech_purpose_type_id = 'PRIMARY_EMAIL'
+   AND pcmp_email.thru_date IS NULL
+LEFT JOIN contact_mech cm
+    ON pcmp_email.contact_mech_id = cm.contact_mech_id
+LEFT JOIN party_contact_mech_purpose pcmp_phone
+    ON p.party_id = pcmp_phone.party_id
+   AND pcmp_phone.contact_mech_purpose_type_id = 'PRIMARY_PHONE'
+   AND pcmp_phone.thru_date IS NULL
 LEFT JOIN telecom_number tn
-    ON pcm_phone.contact_mech_id = tn.contact_mech_id
-
-WHERE pr.role_type_id = 'CUSTOMER'
-  AND p.created_stamp >= '2023-06-01'
-  AND p.created_stamp < '2023-07-01';
+    ON pcmp_phone.contact_mech_id = tn.contact_mech_id
+WHERE p.created_date >= '2025-06-01'
+  AND p.created_date < '2026-07-01';
 ```
 
 ---
@@ -118,17 +114,16 @@ To sync an order or product across multiple systems (e.g., Shopify, HotWax, ERP/
 
 ```sql
 SELECT
-    p.product_id,
+    p.product_id AS hotwax_id,
     gi_erp.id_value AS netsuite_id,
-    gi_hc.id_value AS hotwax_id,
     gi_shop.id_value AS shopify_id
 FROM product p
 LEFT JOIN good_identification gi_erp
-    ON p.product_id = gi_erp.product_id AND gi_erp.good_identification_type_id = 'ERP_ID'
-LEFT JOIN good_identification gi_hc
-    ON p.product_id = gi_hc.product_id AND gi_hc.good_identification_type_id = 'HOTWAX_ID'
+    ON p.product_id = gi_erp.product_id
+   AND gi_erp.good_identification_type_id = 'ERP_ID'
 LEFT JOIN good_identification gi_shop
-    ON p.product_id = gi_shop.product_id AND gi_shop.good_identification_type_id = 'SHOPIFY_PROD_ID';
+    ON p.product_id = gi_shop.product_id
+   AND gi_shop.good_identification_type_id = 'SHOPIFY_PROD_ID';
 ```
 
 ---

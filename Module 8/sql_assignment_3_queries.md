@@ -21,30 +21,27 @@ Merchants need to track only physical items (requiring shipping and fulfillment)
 - `PRODUCT_STORE_ID`
 
 ```sql
-SELECT
-    oi.order_id,
-    oi.order_item_seq_id,
-    p.product_id,
-    p.product_type_id,
-    oh.sales_channel_enum_id,
-    oh.order_date,
-    oh.entry_date,
-    oh.status_id,
-    os.status_datetime,
-    oh.order_type_id,
-    oh.product_store_id
-FROM order_header oh
-JOIN order_item oi ON oh.order_id = oi.order_id
-LEFT JOIN product p ON p.product_id = oi.product_id
-JOIN product_type pt ON p.product_type_id = pt.product_type_id
-LEFT JOIN order_status os
-    ON os.order_id = oi.order_id
-   AND os.order_item_seq_id = oi.order_item_seq_id
-   AND os.status_id = 'ITEM_COMPLETED'
-WHERE pt.is_physical = 'Y'
-  AND oh.order_type_id = 'SALES_ORDER'
-  AND oi.status_id <> 'ITEM_CANCELLED'
-ORDER BY oi.order_id ASC;
+SELECT OH.order_id,
+       OI.order_item_seq_id,
+       OI.product_id,
+       P.product_type_id,
+       OH.sales_channel_enum_id,
+       OH.order_date,
+       OH.entry_date,
+       OH.status_id,
+       OS.status_datetime,
+       OH.order_type_id,
+       OH.product_store_id
+FROM order_header OH
+JOIN order_item OI ON OH.order_id = OI.order_id
+JOIN order_status OS
+    ON OH.order_id = OS.order_id
+   AND OS.status_id = 'ORDER_COMPLETED'
+JOIN product P ON OI.product_id = P.product_id
+JOIN product_type pt ON P.product_type_id = pt.product_type_id
+WHERE OH.status_id = 'ORDER_COMPLETED'
+  AND pt.is_physical = 'Y'
+  AND OH.order_type_id = 'SALES_ORDER';
 ```
 
 ---
