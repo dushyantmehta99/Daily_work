@@ -192,17 +192,17 @@ Finance teams need to see new orders and their payment methods for reconciliatio
 - `Shopify Order ID` (if applicable)
 
 ```sql
-SELECT
-    opp.payment_method_type_id,
-    opp.order_id,
-    oh.grand_total AS total_amount,
-    oh.external_id
-FROM order_payment_preference opp
-JOIN order_header oh
-    ON oh.order_id = opp.order_id
-WHERE oh.order_type_id = 'SALES_ORDER'
-  AND oh.order_date >= NOW() - INTERVAL 30 DAY
-ORDER BY opp.order_id;
+SELECT OH.order_id,
+       OH.grand_total as TOTAL_AMOUNT,
+       OPP.payment_method_type_id ,
+       SSO.shopify_order_id 
+FROM order_header OH
+join order_payment_preference OPP 
+on OH.order_id = OPP.order_id 
+join shopify_shop_order SSO
+on OH.order_id = SSO.order_id
+where OH.order_type_id = "SALES_ORDER"
+AND OH.status_id = "ORDER_CREATED";
 ```
 
 ---
