@@ -230,10 +230,7 @@ JOIN order_payment_preference opp
 LEFT JOIN shipment s
     ON OH.order_id = s.primary_order_id
 WHERE opp.status_id = 'PAYMENT_SETTLED'
-  AND (
-        s.shipment_id IS NULL
-        OR s.status_id = 'SHIPMENT_INPUT'
-      );
+  AND s.shipment_id IS NULL;
 ```
 
 ---
