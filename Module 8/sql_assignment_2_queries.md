@@ -22,27 +22,40 @@ Customer Service might need to verify addresses for orders placed or completed i
 ```sql
 SELECT
     oh.order_id,
-    p.party_id,
+    orr.party_id,
     p.first_name,
     p.last_name,
-    pa.address1,
+    pa.address1 AS street_address,
     pa.city,
-    pa.state_province_geo_id,
+    pa.state_province_geo_id AS state_province,
     pa.postal_code,
-    pa.country_geo_id,
-    oh.status_id,
+    pa.country_geo_id AS country_code,
+    oh.status_id AS order_status,
     oh.order_date
 FROM order_header oh
-LEFT JOIN order_role orr
+JOIN order_role orr
     ON oh.order_id = orr.order_id
-    AND orr.role_type_id = 'SHIP_TO_CUSTOMER'
-LEFT JOIN order_contact_mech ocm
+   AND orr.role_type_id = 'SHIP_TO_CUSTOMER'
+LEFT JOIN person p
+    ON p.party_id = orr.party_id
+JOIN order_contact_mech ocm
     ON oh.order_id = ocm.order_id
-    AND ocm.contact_mech_purpose_type_id = 'SHIPPING_LOCATION'
-LEFT JOIN postal_address pa ON pa.contact_mech_id = ocm.contact_mech_id
-LEFT JOIN person p ON p.party_id = orr.party_id
-WHERE (oh.order_date >= '2023-10-01' AND oh.order_date < '2023-11-01')
-   OR (oh.status_id = 'ORDER_COMPLETED' AND oh.last_updated_stamp >= '2023-10-01' AND oh.last_updated_stamp < '2023-11-01');
+   AND ocm.contact_mech_purpose_type_id = 'SHIPPING_LOCATION'
+LEFT JOIN postal_address pa
+    ON pa.contact_mech_id = ocm.contact_mech_id
+LEFT JOIN order_status os
+    ON oh.order_id = os.order_id
+   AND os.status_id = 'ORDER_COMPLETED'
+WHERE
+(
+    oh.order_date >= '2023-10-01'
+    AND oh.order_date < '2023-11-01'
+)
+OR
+(
+    os.status_datetime >= '2023-10-01'
+    AND os.status_datetime < '2023-11-01'
+);
 ```
 
 ---
@@ -64,7 +77,28 @@ Companies often want region-specific analysis to plan local marketing, staffing,
 - `ORDER_STATUS`
 
 ```sql
-
+SELECT
+    oh.order_id,
+    CONCAT(p.first_name, ' ', p.last_name) AS customer_name,
+    pa.address1 AS street_address,
+    pa.city,
+    pa.state_province_geo_id AS state_province,
+    pa.postal_code,
+    oh.grand_total AS total_amount,
+    oh.order_date,
+    oh.status_id AS order_status
+FROM order_header oh
+JOIN order_role orr
+    ON oh.order_id = orr.order_id
+   AND orr.role_type_id = 'SHIP_TO_CUSTOMER'
+JOIN person p
+    ON p.party_id = orr.party_id
+JOIN order_contact_mech ocm
+    ON oh.order_id = ocm.order_id
+   AND ocm.contact_mech_purpose_type_id = 'SHIPPING_LOCATION'
+JOIN postal_address pa
+    ON pa.contact_mech_id = ocm.contact_mech_id
+WHERE pa.city = 'New York';
 ```
 
 ---
@@ -81,7 +115,28 @@ Merchandising teams need to identify the best-selling product(s) in a specific r
 - `CITY` / `STATE` (within New York region)
 - `REVENUE`
 
-```
+```sql
+SELECT
+    p.product_id,
+    p.internal_name,
+    SUM(oi.quantity) AS total_quantity_sold,
+    'New York' AS city,
+    SUM(oi.quantity * oi.unit_price) AS revenue
+FROM order_header oh
+JOIN order_item oi
+    ON oh.order_id = oi.order_id
+JOIN product p
+    ON oi.product_id = p.product_id
+JOIN order_contact_mech ocm
+    ON oh.order_id = ocm.order_id
+   AND ocm.contact_mech_purpose_type_id = 'SHIPPING_LOCATION'
+JOIN postal_address pa
+    ON pa.contact_mech_id = ocm.contact_mech_id
+WHERE pa.city = 'New York'
+GROUP BY
+    p.product_id,
+    p.internal_name
+ORDER BY total_quantity_sold DESC;
 ```
 
 ---
@@ -133,7 +188,17 @@ Warehouse managers need to track "shrinkage" such as lost or damaged inventory t
 - `TRANSACTION_DATE`
 
 ```sql
-
+SELECT
+ii.inventory_item_id,
+ii.product_id,
+ii.facility_id,
+iid.quantity_on_hand_diff AS quantity_lost_or_damaged,
+iid.reason_enum_id AS reason_code,
+iid.effective_date AS transaction_date
+FROM inventory_item ii
+JOIN inventory_item_detail iid
+ON ii.inventory_item_id = iid.inventory_item_id
+WHERE iid.reason_enum_id IN ('VAR_LOST','VAR_DAMAGED','EXPIRED');
 ```
 
 ---
@@ -161,11 +226,10 @@ SELECT
     pf.minimum_stock AS reorder_threshold
 FROM product_facility pf
 JOIN product p ON pf.product_id = p.product_id
-LEFT JOIN inventory_item ii
+JOIN inventory_item ii
     ON ii.product_id = pf.product_id
     AND ii.facility_id = pf.facility_id
-WHERE ii.available_to_promise_total < pf.minimum_stock
-   OR ii.available_to_promise_total <= 0;
+WHERE ii.available_to_promise_total < pf.minimum_stock;
 ```
 
 ---
@@ -239,17 +303,17 @@ Operations teams need to audit when an order item's status (e.g., from "Approved
 
 ```sql
 SELECT
-    os1.order_id,
-    os2.order_item_seq_id,
-    os2.status_id,
-    os2.status_user_login,
-    os2.status_datetime
-FROM order_status os1
-JOIN order_status os2
-    ON os1.order_id = os2.order_id
-    AND os1.order_item_seq_id = os2.order_item_seq_id
-WHERE os1.status_id = 'ITEM_APPROVED'
-  AND os2.status_id = 'ITEM_COMPLETED';
+oh.order_id,
+oi.order_item_seq_id,
+os.status_id AS current_status_id,
+os.status_datetime AS status_change_datetime,
+os.status_user_login AS changed_by
+FROM order_header oh
+JOIN order_item oi
+ON oh.order_id = oi.order_id
+JOIN order_status os
+ON oh.order_id = os.order_id
+AND oi.order_item_seq_id = os.order_item_seq_id;
 ```
 
 ---
@@ -266,5 +330,16 @@ Marketing and sales teams want to see how many orders come from each channel (e.
 - `REPORTING_PERIOD`
 
 ```sql
-
+SELECT
+    oh.sales_channel_enum_id AS sales_channel,
+    COUNT(DISTINCT oh.order_id) AS total_orders,
+    SUM(oi.quantity * oi.unit_price) AS total_revenue,
+    YEAR(oh.order_date) AS reporting_period
+FROM order_header oh
+JOIN order_item oi
+    ON oh.order_id = oi.order_id
+WHERE oh.order_type_id = 'SALES_ORDER'
+GROUP BY
+    oh.sales_channel_enum_id,
+    YEAR(oh.order_date);
 ```

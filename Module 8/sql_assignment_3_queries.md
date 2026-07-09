@@ -64,19 +64,24 @@ Customer service and finance often need insights into returned items to manage r
 
 ```sql
 SELECT
-    rh.return_id,
-    ri.order_id,
-    oh.product_store_id,
-    rh.last_updated_stamp AS status_datetime,
-    oh.order_name,
-    rh.from_party_id,
-    rh.return_date,
-    rh.entry_date,
-    rh.return_channel_enum_id
+rh.return_id,
+ri.order_id,
+oh.product_store_id,
+rs.status_datetime,
+oh.order_name,
+rh.from_party_id,
+rh.return_date,
+rh.entry_date,
+rh.return_channel_enum_id
 FROM return_header rh
-JOIN return_item ri ON rh.return_id = ri.return_id
-LEFT JOIN order_header oh ON ri.order_id = oh.order_id
-WHERE rh.status_id = 'RETURN_COMPLETED';
+JOIN return_item ri
+ON rh.return_id = ri.return_id
+JOIN return_status rs
+ON rh.return_id = rs.return_id
+JOIN order_header oh
+ON ri.order_id = oh.order_id
+WHERE rh.return_header_type_id='CUSTOMER_RETURN'
+AND rh.status_id='RETURN_COMPLETED';
 ```
 
 ---
@@ -91,7 +96,16 @@ The merchandising team needs a list of orders that only have one return.
 - `FIRST_NAME`
 
 ```sql
-
+SELECT
+p.party_id,
+p.first_name
+FROM person p
+JOIN return_header rh
+ON p.party_id = rh.from_party_id
+GROUP BY
+p.party_id,
+p.first_name
+HAVING COUNT(DISTINCT rh.return_id)=1;
 ```
 
 ---
@@ -108,7 +122,21 @@ The retailer needs the total amount of items that were returned as well as how m
 - `APPEASEMENTS $ TOTAL`
 
 ```sql
-
+SELECT
+SUM(ri.RETURN_QUANTITY * ri.RETURN_PRICE) 
+AS TOTAL_RETURN_AMOUNT,
+COUNT(DISTINCT ri.RETURN_ID)
+AS TOTAL_RETURNS,
+SUM(ra.AMOUNT)
+AS TOTAL_APPEASEMENTS_AMOUNT,
+COUNT(DISTINCT ra.RETURN_ADJUSTMENT_ID)
+AS TOTAL_APPEASEMENTS
+FROM return_header rh
+JOIN return_item ri
+ON rh.RETURN_ID = ri.RETURN_ID
+JOIN return_adjustment ra
+ON rh.RETURN_ID = ra.RETURN_ID
+WHERE RETURN_ADJUSTMENT_TYPE_ID='APPEASEMENTS';
 ```
 
 ---
@@ -160,7 +188,23 @@ Analyzing orders with multiple returns can identify potential fraud, chronic iss
 - `RETURN_REASON`
 - `RETURN_QUANTITY`
 
-```
+```sql
+SELECT
+ri.ORDER_ID,
+ri.RETURN_ID,
+rh.RETURN_DATE,
+ri.RETURN_REASON_ID AS RETURN_REASON,
+ri.RETURN_QUANTITY
+FROM return_header rh
+JOIN return_item ri
+ON rh.RETURN_ID = ri.RETURN_ID
+WHERE ri.ORDER_ID IN
+(
+SELECT ORDER_ID
+FROM return_item
+GROUP BY ORDER_ID
+HAVING COUNT(ORDER_ID)>1
+);
 ```
 
 ---
@@ -176,7 +220,27 @@ Identify which facility (store) handled the highest volume of "one-day shipping"
 - `TOTAL_ONE_DAY_SHIP_ORDERS`
 - `REPORTING_PERIOD`
 
-```
+```sql
+SELECT
+f.facility_id,
+f.facility_name,
+COUNT(DISTINCT oh.order_id)
+AS total_one_day_ship_orders,
+DATE_FORMAT(
+DATE_SUB(CURDATE(),INTERVAL 1 MONTH),
+'%Y-%m'
+)
+AS reporting_period
+FROM facility f
+JOIN shipment s
+ON f.facility_id=s.origin_facility_id
+JOIN order_header oh
+ON s.primary_order_id=oh.order_id
+GROUP BY
+f.facility_id,
+f.facility_name
+ORDER BY total_one_day_ship_orders DESC
+LIMIT 1;
 ```
 
 ---
