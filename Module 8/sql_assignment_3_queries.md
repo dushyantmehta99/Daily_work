@@ -170,8 +170,8 @@ SELECT
     oh.product_store_id
 FROM return_header rh
 JOIN return_item ri ON rh.return_id = ri.return_id
-LEFT JOIN order_header oh ON ri.order_id = oh.order_id
-LEFT JOIN return_adjustment ra ON ra.return_id = ri.return_id;
+JOIN order_header oh ON ri.order_id = oh.order_id
+JOIN return_adjustment ra ON ra.return_id = ri.return_id;
 ```
 
 ---
@@ -266,11 +266,11 @@ SELECT
     p.status_id,
     fp.facility_id
 FROM party p
-LEFT JOIN person per ON p.party_id = per.party_id
+JOIN person per ON p.party_id = per.party_id
 JOIN party_role pr
     ON p.party_id = pr.party_id
     AND pr.role_type_id = 'WAREHOUSE_PICKER'
-LEFT JOIN facility_party fp
+JOIN facility_party fp
     ON fp.party_id = p.party_id
     AND fp.role_type_id = 'WAREHOUSE_PICKER';
 ```
@@ -296,7 +296,7 @@ FROM product p
 JOIN product_price pp
     ON pp.product_id = p.product_id
     AND pp.product_price_type_id = 'LIST_PRICE'
-LEFT JOIN product_facility pf ON pf.product_id = p.product_id
+JOIN product_facility pf ON pf.product_id = p.product_id
 GROUP BY p.product_id, p.internal_name;
 ```
 
@@ -322,7 +322,7 @@ SELECT
     ii.quantity_on_hand_total AS qoh,
     ii.available_to_promise_total AS atp
 FROM product_facility pf
-LEFT JOIN inventory_item ii
+JOIN inventory_item ii
     ON ii.product_id = pf.product_id
     AND ii.facility_id = pf.facility_id
 JOIN facility f ON f.facility_id = pf.facility_id
@@ -377,8 +377,8 @@ SELECT DISTINCT
     DATEDIFF(NOW(), oh.order_date) AS duration_days
 FROM order_header oh
 JOIN order_item_ship_group ois ON oh.order_id = ois.order_id
-LEFT JOIN shipment s ON ois.order_id = s.primary_order_id
-LEFT JOIN facility f ON f.facility_id = ois.facility_id
+JOIN shipment s ON ois.order_id = s.primary_order_id
+JOIN facility f ON f.facility_id = ois.facility_id
 WHERE s.shipment_id IS NULL
   AND oh.status_id = 'ORDER_APPROVED'
   AND f.facility_type_id NOT IN (

@@ -29,17 +29,17 @@ JOIN party_role pr
    AND pr.role_type_id = 'CUSTOMER'
 JOIN person per
     ON p.party_id = per.party_id
-LEFT JOIN party_contact_mech_purpose pcmp_email
+JOIN party_contact_mech_purpose pcmp_email
     ON p.party_id = pcmp_email.party_id
    AND pcmp_email.contact_mech_purpose_type_id = 'PRIMARY_EMAIL'
    AND pcmp_email.thru_date IS NULL
-LEFT JOIN contact_mech cm
+JOIN contact_mech cm
     ON pcmp_email.contact_mech_id = cm.contact_mech_id
-LEFT JOIN party_contact_mech_purpose pcmp_phone
+JOIN party_contact_mech_purpose pcmp_phone
     ON p.party_id = pcmp_phone.party_id
    AND pcmp_phone.contact_mech_purpose_type_id = 'PRIMARY_PHONE'
    AND pcmp_phone.thru_date IS NULL
-LEFT JOIN telecom_number tn
+JOIN telecom_number tn
     ON pcmp_phone.contact_mech_id = tn.contact_mech_id
 WHERE p.created_date >= '2025-06-01'
   AND p.created_date < '2026-07-01';
@@ -92,7 +92,7 @@ SELECT
     gi.id_value AS netsuite_id
 FROM product p
 
-LEFT JOIN good_identification gi
+JOIN good_identification gi
        ON p.product_id = gi.product_id
       AND gi.good_identification_type_id = 'ERP_ID'
 
@@ -118,10 +118,10 @@ SELECT
     gi_erp.id_value AS netsuite_id,
     gi_shop.id_value AS shopify_id
 FROM product p
-LEFT JOIN good_identification gi_erp
+good_identification gi_erp
     ON p.product_id = gi_erp.product_id
    AND gi_erp.good_identification_type_id = 'ERP_ID'
-LEFT JOIN good_identification gi_shop
+good_identification gi_shop
     ON p.product_id = gi_shop.product_id
    AND gi_shop.good_identification_type_id = 'SHOPIFY_PROD_ID';
 ```

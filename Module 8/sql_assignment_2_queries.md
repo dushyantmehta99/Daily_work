@@ -36,14 +36,14 @@ FROM order_header oh
 JOIN order_role orr
     ON oh.order_id = orr.order_id
    AND orr.role_type_id = 'SHIP_TO_CUSTOMER'
-LEFT JOIN person p
+JOIN person p
     ON p.party_id = orr.party_id
 JOIN order_contact_mech ocm
     ON oh.order_id = ocm.order_id
    AND ocm.contact_mech_purpose_type_id = 'SHIPPING_LOCATION'
-LEFT JOIN postal_address pa
+postal_address pa
     ON pa.contact_mech_id = ocm.contact_mech_id
-LEFT JOIN order_status os
+JOIN order_status os
     ON oh.order_id = os.order_id
    AND os.status_id = 'ORDER_COMPLETED'
 WHERE
@@ -254,11 +254,11 @@ SELECT DISTINCT
     oh.status_id AS order_status,
     oh.order_id
 FROM order_item oi
-INNER JOIN order_header oh ON oh.order_id = oi.order_id
-LEFT JOIN order_item_ship_group oisg
+JOIN order_header oh ON oh.order_id = oi.order_id
+JOIN order_item_ship_group oisg
     ON oisg.order_id = oi.order_id
     AND oisg.ship_group_seq_id = oi.ship_group_seq_id
-LEFT JOIN facility f ON oisg.facility_id = f.facility_id
+JOIN facility f ON oisg.facility_id = f.facility_id
 WHERE oh.status_id NOT IN ('ORDER_COMPLETED', 'ORDER_CANCELLED');
 ```
 
