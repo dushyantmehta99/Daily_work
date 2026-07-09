@@ -41,7 +41,7 @@ JOIN person p
 JOIN order_contact_mech ocm
     ON oh.order_id = ocm.order_id
    AND ocm.contact_mech_purpose_type_id = 'SHIPPING_LOCATION'
-postal_address pa
+JOIN postal_address pa
     ON pa.contact_mech_id = ocm.contact_mech_id
 JOIN order_status os
     ON oh.order_id = os.order_id
