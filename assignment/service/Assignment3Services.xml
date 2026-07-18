@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<services xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="http://moqui.org/xsd/service-definition-3.xsd">
+
+    <service verb="get"
+             noun="A3Q23CompletedSalesOrders"
+             type="script"
+             location="component://assignment/script/Assignment3Services.groovy"
+             method="getA3Q23CompletedSalesOrders"
+             authenticate="anonymous-all">
+
+        <out-parameters>
+            <parameter name="orderList" type="List"/>
+        </out-parameters>
+
+    </service>
+
+</services>

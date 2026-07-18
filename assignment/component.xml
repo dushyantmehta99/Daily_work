@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="assignment"
+        xmlns="http://moqui.org/xsd/component-definition-3.xsd">
+
+    <entity location="entity"/>
+    <service location="service"/>
+    <screen location="screen"/>
+    <data location="data"/>
+
+</component>

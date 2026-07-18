@@ -1,0 +1,45 @@
+
+<?xml version="1.0" encoding="UTF-8"?>
+<services xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="http://moqui.org/xsd/service-definition-3.xsd">
+
+    <service verb="get"
+             noun="A1Q01NewCustomers"
+             type="script"
+             location="component://assignment/script/Assignment1Services.groovy"
+             method="getA1Q01NewCustomers"
+             authenticate="anonymous-all">
+
+        <out-parameters>
+            <parameter name="customerList"/>
+        </out-parameters>
+
+    </service>
+  
+
+   <service verb="get"
+         noun="A1Q01NewCustomersUsingFind"
+         type="script"
+         location="component://assignment/script/Assignment1Services.groovy"
+         method="getA1Q01NewCustomersUsingFind"
+         authenticate="anonymous-all">
+
+    <out-parameters>
+        <parameter name="customerList"/>
+    </out-parameters>
+</service>
+
+   <service verb="get"
+         noun="OrdersWithoutShipmentView"
+         type="script"
+         location="component://assignment/script/Assignment1Services.groovy"
+         method="getOrdersWithoutShipmentView"
+         authenticate="anonymous-all">
+
+    <out-parameters>
+        <parameter name="orderList"/>
+    </out-parameters>
+</service>
+
+
+</services>
